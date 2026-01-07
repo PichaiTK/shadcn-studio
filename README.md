@@ -1,155 +1,281 @@
-<a href="https://shadcnstudio.com">
-  <img alt="shadcn/studio logo" width="800" src="https://cdn.shadcnstudio.com/ss-assets/smm/marketing/shadcn-studio-smm-banner.png">
-</a><br/><br/>
+# DesignConnect Pro - Full Stack Platform
 
-[shadcn/studio](https://shadcnstudio.com) is an open-source collection of copy-and-paste shadcn components, blocks, and templates - paired with a powerful theme generator & AI Tools to craft, customize, and ship faster. 🚀
+แพลตฟอร์มครบวงจรสำหรับธุรกิจ รวมระบบร้านค้าออนไลน์, POS, สตรีมมิ่ง, และแชทแบบเรียลไทม์
 
-<p>
-    <a href="https://github.com/themeselection/shadcn-studio/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
-    <a href="https://x.com/ShadCNStudio" target="_blank">
-      <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/ShadCNStudio">
-   </a>
-</p>
+## ฟีเจอร์หลัก
 
-<a href="https://themeselection.com" target="_blank">
-  <img
-    src="https://cdn.shadcnstudio.com/ts-assets/themeselection/logo/logo.png"
-    alt="themeselection logo"
-    height="30"
-  />
-</a>
+- Authentication & Authorization (Email/Password, OAuth)
+- Chat & Realtime (Socket.IO)
+- TV/Streaming (HLS.js)
+- Admin Panel
+- POS System
+- E-commerce
+- Monitoring & Analytics
 
-Supported by [ThemeSelection](https://themeselection.com), with a commitment to empowering the open-source community.
+## โครงสร้างโปรเจกต์
 
----
+```
+designconnect-pro/
+├── frontend/          # HTML/CSS/JS Frontend
+├── server/           # NestJS Backend
+├── ops/              # DevOps configs
+└── docker-compose.yml
+```
 
-## Table of Contents 📋
+## การติดตั้ง
 
-- [Table of Contents 📋](#table-of-contents-)
-- [Overview 🌏](#overview-)
-  - [Not a standard library, but a distribution of components](#not-a-standard-library-but-a-distribution-of-components)
-- [Why should I use shadcn/studio? 💡](#why-should-i-use-shadcnstudio-)
-- [This is where shadcn/studio shines ✨](#this-is-where-shadcnstudio-shines-)
-- [Features ✨](#features-)
-- [Documentation 📚](#documentation-)
-- [Available Components 🧩](#available-components-)
-  - [Component Examples](#component-examples)
-- [Community 🤝](#community-)
-- [Credits 🤘](#credits-)
-- [License ©](#license-)
-- [Useful Links 🎁](#useful-links-)
+### ใช้ Docker (แนะนำ)
 
----
+```bash
+docker-compose up -d
+```
 
-## Overview 🌏
+### Manual Setup
 
-**This isn&apos;t a traditional component library or a replacement for Shadcn**. Instead, it&apos;s a unique collection offers customizable variants of components, blocks, and templates. Preview, customize, and copy-paste them into your apps with ease.
+**Backend:**
+```bash
+cd server
+npm install
+npm run dev
+```
 
-Building on the solid foundation of the Shadcn components & blocks, we&apos;ve enhanced it with custom-designed components & blocks to give you a head start. This allows you to craft, customize, and ship your projects faster and more efficiently.
+**Frontend:**
+```bash
+cd frontend
+# Open index.html in browser or use live server
+```
 
-### Not a standard library, but a distribution of components
+## Environment Variables
 
-Following the philosophy of Shadcn, shadcn/studio isn&apos;t a conventional &quot;install-from-NPM&quot; library. Rather, it&apos;s an open-source distribution of components designed for maximum adaptability. You can copy the code, modify styles, adjust logic, or integrate it with other tools—free from the limitations of typical libraries. This &quot;open code&quot; model empowers you to customize with confidence and creativity.
+สร้างไฟล์ `.env` ใน `server/`:
 
-## Why should I use shadcn/studio? 💡
+```
+MONGODB_URI=mongodb://localhost:27017/designconnect
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=your-secret-key
+```
 
-shadcn/ui aims to provide core components with a unique distribution system, allowing developers to copy and paste reusable, customizable UI elements directly into their codebase.
+## API Endpoints
 
-While this approach offers flexibility and control, it comes with some limitations: a lack of diverse component variants examples, limited theme customization options, and limited pre-built blocks. Additionally, its extensive customization options, though powerful, can sometimes feel overwhelming, especially for those seeking a more guided or streamlined experience.
 
-## This is where shadcn/studio shines ✨
+### Authentication
+```bash
+# Register new user
+POST /api/auth/register
+Content-Type: application/json
 
-An open-source & premium collection of copy-and-paste shadcn components, blocks, and templates - paired with a powerful theme generator to craft, customize, and ship faster 🚀. It provides a robust toolkit for building stunning, interactive user interfaces with ease.
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phone": "0812345678",
+  "password": "securePassword123"
+}
 
-- **Open-source:** Dive into a growing, community-driven collection of copy-and-paste [shadcn/ui components]('https://shadcnstudio.com/components'), shadcn blocks, and templates.
+# Login
+POST /api/auth/login
+Content-Type: application/json
 
-- **Component & Blocks variants:** Access a diverse, collection of customizable [shadcn blocks](https://shadcnstudio.com/blocks) and component variants to quickly build and style your UI with ease.
+{
+  "email": "john@example.com",
+  "password": "securePassword123"
+}
 
-- **Animated variants with Motion:** Add smooth, modern animations to your components, enhancing user experiences with minimal effort.
+Response:
+{
+  "token": "eyJhbGc...",
+  "user": {
+    "id": "...",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "USER"
+  }
+}
 
-- **Landing pages & Dashboards:** Explore 20+ premium & free [Shadcn templates](https://shadcnstudio.com/templates) for dashboards, landing pages & more. Fully customizable & easy to use.
+# Get current user
+GET /api/auth/me
+Authorization: Bearer {token}
+```
 
-- **shadcn/ui for Figma:** Speed up your workflow with [Shadcn Figma](https://shadcnstudio.com/figma) UI components, blocks & templates — a full design library inspired by shadcn/ui.
+### Chat (WebSocket)
+```javascript
+// Connect to chat
+const socket = io('http://localhost:3001')
 
-- **Powerful theme generator:** Customize your UI instantly with [Shadcn Theme Generator](https://shadcnstudio.com/theme-generator). Preview changes in real time and create consistent, on-brand designs faster.
+// Join room
+socket.emit('join_room', { room: 'general', userId: '...' })
 
-- **shadcn/studio MCP:** Integrate [shadcn/studio MCP](https://shadcnstudio.com/mcp) Server directly into your favorite IDE and craft stunning shadcn/ui Components, Blocks and Pages inspired by shadcn/studio.
+// Send message
+socket.emit('message', { room: 'general', text: 'Hello!' })
 
-- **Shadcn Figma To Code Plugin:** Convert your Figma designs into production-ready code instantly with the [Shadcn Figma Plugin](https://shadcnstudio.com/figma-plugin).
+// Listen for messages
+socket.on('message', (data) => {
+  console.log(data)
+})
+```
 
-## Features ✨
+### Health Check
+```bash
+GET /health
+GET /health/live
+GET /health/ready
+```
 
-1. **Live Theme Generator:** See your shadcn components transform instantly as you experiment with styles in real time.
-2. **Color Mastery:** Play with background, text, and border hues using a sleek color picker for a unified design.
-3. **Typography Fine-Tuning:** Perfect your text with adjustable font sizes, weights, and transformations for a polished look.
-4. **Tailwind v4 Compatibility:** Effortlessly use Tailwind v4, supporting OKLCH, HSL, RGB & HEX color formats.
-5. **Stunning Theme Starters:** Kick off with gorgeous pre-built themes and customize light or dark modes in a breeze.
-6. **Hold to Save Theme:** Preserve your custom themes with a quick hold, making them easy to reuse or share later.
+## ระบบความปลอดภัย
 
-## Documentation 📚
+- JWT Authentication
+- Password hashing with bcrypt
+- HTTPS/TLS support
+- CORS configuration
+- Rate limiting
 
-For comprehensive documentation, please visit [shadcnstudio.com](https://shadcnstudio.com).
+## การพัฒนาต่อ
 
-## Available Components 🧩
+1. เพิ่ม OAuth providers (Google, LINE, Facebook)
+2. ระบบ Monitoring (Prometheus, Grafana)
+3. Synthetic checks & alerts
+4. Admin dashboard
+5. Payment integration
 
-shadcn/studio provides an open-source collection of copy-and-paste Shadcn Components designed to accelerate your project development. Below is a summary of the available component categories:
+## Code Examples
 
-### Component Examples
+### HTML Structure
+```html
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>DesignConnect Pro</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <nav class="top-nav">...</nav>
+    <aside class="sidebar">...</aside>
+    <main class="content">...</main>
+    <script src="scripts/main.js"></script>
+</body>
+</html>
+```
 
-<table>
-  <tr>
-    <td width="33.3333%">Avatar</td>
-    <td width="33.3333%">Badge</td>
-    <td width="33.3333%">Breadcrumb</td>
-  </tr>
-  <tr>
-    <td width="33.3333%" align="center">
-      <a href="https://shadcnstudio.com/docs/components/avatar">
-        <img alt="Shadcn Avatar" src="https://cdn.shadcnstudio.com/ss-assets/components-svg/components/avatar.svg">
-      </a>
-    </td>
-    <td width="33.3333%" align="center">
-      <a href="https://shadcnstudio.com/docs/components/badge">
-        <img alt="Shadcn Badge" src="https://cdn.shadcnstudio.com/ss-assets/components-svg/components/badge.svg">
-      </a>
-    </td>
-    <td width="33.3333%" align="center">
-      <a href="https://shadcnstudio.com/docs/components/breadcrumb">
-        <img alt="Shadcn Breadcrumb" src="https://cdn.shadcnstudio.com/ss-assets/components-svg/navigations/breadcrumb.svg">
-      </a>
-    </td>
-  </tr>
-</table>
+### CSS Styling
+```css
+/* Custom animations */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
 
-[Explore all components](https://shadcnstudio.com/components)
+/* Responsive sidebar */
+.sidebar-expanded { width: 280px; }
+.sidebar-collapsed { width: 70px; }
+```
 
-## Community 🤝
+### JavaScript Authentication
+```javascript
+class AuthManager {
+  async login(email, password) {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    })
+    const data = await response.json()
+    localStorage.setItem('authToken', data.token)
+    return data
+  }
+}
+```
 
-Join the shadcn/studio community to discuss the library, ask questions, and share your experiences:
+### TypeScript Backend (NestJS)
+```typescript
+@Controller('auth')
+export class AuthController {
+  constructor(private authService: AuthService) {}
 
-- 🐦 [Follow us on Twitter](https://x.com/ShadCNStudio)
-- 🎮 [Join us on Discord](https://discord.com/invite/kBHkY7DekX)
+  @Post('login')
+  async login(@Body() credentials: LoginDto) {
+    return this.authService.login(credentials)
+  }
+}
+```
 
-## Credits 🤘
+### Python Analytics Script
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
 
-We are grateful for the contributions of the open-source community, particularly:
+# Analyze sales data
+df = pd.read_csv('sales.csv')
+top_products = df.groupby('product')['quantity'].sum().sort_values(ascending=False).head(10)
 
-- [shadcn/ui](https://ui.shadcn.com/)
-- [tweakcn](https://tweakcn.com/) (Our Theme Generator is heavily inspired by tweakcn)
+plt.figure(figsize=(12, 6))
+top_products.plot(kind='bar')
+plt.title('Top 10 Best Selling Products')
+plt.xlabel('Product')
+plt.ylabel('Quantity Sold')
+plt.tight_layout()
+plt.savefig('sales_report.png')
+```
 
-These projects form the backbone of shadcn/studio, allowing us to build a powerful copy-and-paste components.
+## Troubleshooting
 
-## License ©
+### Common Issues
 
-- Copyright © [ThemeSelection](https://themeselection.com/)
-- Licensed under [MIT](https://github.com/themeselection/shadcn-studio/blob/main/LICENSE.md)
-- shadcn/studio is an open-source collection of copy-and-paste shadcn components, blocks, and templates - paired with a powerful theme generator to craft, customize, and ship faster.
+**Port already in use**
+```bash
+# Kill process on port 3001
+lsof -ti:3001 | xargs kill -9
+```
 
-## Useful Links 🎁
+**MongoDB connection failed**
+```bash
+# Start MongoDB service
+sudo systemctl start mongodb
+# or
+docker run -d -p 27017:27017 mongo:latest
+```
 
-- [Saas Boilerplates](https://themeselection.com/item/category/saas-boilerplate)
-- [Next.js Admin Template](https://themeselection.com/item/category/next-js-admin-template/)
-- [Vue CheatSheet](https://vue-cheatsheet.themeselection.com/)
-- [Freebies](https://themeselection.com/item/category/freebies/)
-- [Free Admin Templates](https://themeselection.com/item/category/free-admin-templates/)
-- [Bootstrap 5 CheatSheet](https://bootstrap-cheatsheet.themeselection.com/)
+**CORS errors**
+- Check `main.ts` CORS configuration
+- Add your frontend URL to allowed origins
+
+**WebSocket connection failed**
+- Ensure backend is running on port 3001
+- Check firewall settings
+- Verify Socket.IO client version matches server
+
+## Performance Optimization
+
+### Frontend
+- Minify CSS/JS files
+- Enable browser caching
+- Use CDN for static assets
+- Lazy load images
+
+### Backend
+- Enable response compression
+- Implement Redis caching
+- Use database indexes
+- Connection pooling
+
+## Testing
+
+### Unit Tests
+```bash
+cd server
+npm run test
+```
+
+### E2E Tests
+```bash
+npm run test:e2e
+```
+
+### Load Testing
+```bash
+# Using Apache Bench
+ab -n 1000 -c 10 http://localhost:3001/health
+```
+
+## License
+
+MIT

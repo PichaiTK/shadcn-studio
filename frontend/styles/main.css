@@ -1,0 +1,68 @@
+@import url("https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap");
+
+* {
+  font-family: "Kanit", sans-serif;
+}
+
+.sidebar-collapsed {
+  width: 70px;
+}
+
+.sidebar-expanded {
+  width: 280px;
+}
+
+.main-content-expanded {
+  margin-left: 280px;
+}
+
+.main-content-collapsed {
+  margin-left: 70px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.sidebar-item:hover {
+  background-color: rgba(147, 51, 234, 0.5);
+}
+
+.sidebar-item.active {
+  background-color: rgb(147, 51, 234);
+}
+
+.notification-badge {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.carousel-item {
+  min-width: 100%;
+  transition: transform 0.5s ease;
+}
+
+.page-content {
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.page-content.hidden {
+  opacity: 0;
+  display: none;
+}

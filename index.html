@@ -1,0 +1,2995 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DesignConnect Pro - แพลตฟอร์มครบวงจร</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Kanit', sans-serif;
+        }
+        
+        .sidebar-collapsed {
+            width: 70px;
+        }
+        
+        .sidebar-expanded {
+            width: 280px;
+        }
+        
+        .main-content-expanded {
+            margin-left: 280px;
+        }
+        
+        .main-content-collapsed {
+            margin-left: 70px;
+        }
+        
+        .notification-badge {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .carousel-item {
+            min-width: 100%;
+            transition: transform 0.5s ease;
+        }
+        
+        .video-player {
+            aspect-ratio: 16/9;
+            background: #000;
+        }
+        
+        .chat-message {
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .theme-light {
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .theme-dark {
+            background: #1a1a2e;
+            color: #eee;
+        }
+        
+        .theme-warm {
+            background: #fff5e6;
+            color: #4a3f35;
+        }
+
+        /* Added inline chat styles */
+        .inline-chat-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+        }
+        
+        .inline-chat-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            z-index: 101;
+            animation: slideInChat 0.3s ease;
+        }
+
+        @keyframes slideInChat {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -40%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .code-editor {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+
+        .code-line {
+            display: block;
+            padding: 2px 0;
+        }
+
+        .code-line.selected {
+            background: rgba(100, 200, 255, 0.2);
+        }
+
+        .test-result {
+            animation: testFade 0.4s ease;
+        }
+
+        @keyframes testFade {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Added workspace context panel styles */
+        .workspace-context {
+            border: 2px dashed #9333ea;
+            background: #f3e8ff;
+        }
+
+        .file-drop-zone {
+            min-height: 120px;
+            border: 2px dashed #cbd5e0;
+            background: #f7fafc;
+            transition: all 0.3s ease;
+        }
+
+        .file-drop-zone.drag-over {
+            border-color: #9333ea;
+            background: #f3e8ff;
+        }
+
+        .context-file {
+            animation: slideInFile 0.3s ease;
+        }
+
+        @keyframes slideInFile {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .apply-in-editor-btn {
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 5px rgba(147, 51, 234, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(147, 51, 234, 0.8);
+            }
+        }
+    </style>
+</head>
+<body class="theme-light transition-colors duration-300">
+    <!-- Top Navigation Bar -->
+    <nav class="fixed top-0 left-0 right-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <button id="sidebarToggle" class="text-2xl hover:bg-white/20 p-2 rounded-lg transition">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="text-2xl font-bold">DesignConnect Pro</h1>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="flex-1 max-w-2xl mx-4">
+                <div class="relative">
+                    <input type="text" placeholder="ค้นหาสินค้า, บริการ, นักออกแบบ..." 
+                           class="w-full px-4 py-2 rounded-full bg-white/20 backdrop-blur-md text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50">
+                    <button class="absolute right-2 top-1/2 -translate-y-1/2 bg-white text-purple-600 px-4 py-1 rounded-full hover:bg-purple-100 transition">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Top Menu Icons -->
+            <div class="flex items-center space-x-4">
+                <button id="aiAssistantBtn" class="relative hover:bg-white/20 p-2 rounded-lg transition">
+                    <i class="fas fa-wand-magic-sparkles text-xl"></i>
+                    <span class="absolute -top-1 -right-1 bg-yellow-400 text-purple-900 text-xs px-1.5 rounded-full font-bold">AI</span>
+                </button>
+                
+                <button id="notificationBtn" class="relative hover:bg-white/20 p-2 rounded-lg transition">
+                    <i class="fas fa-bell text-xl"></i>
+                    <span class="notification-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs px-2 rounded-full">5</span>
+                </button>
+                
+                <button id="chatBtn" class="relative hover:bg-white/20 p-2 rounded-lg transition">
+                    <i class="fas fa-comments text-xl"></i>
+                    <span class="notification-badge absolute -top-1 -right-1 bg-green-500 text-white text-xs px-2 rounded-full">3</span>
+                </button>
+                
+                <button id="cartBtn" class="relative hover:bg-white/20 p-2 rounded-lg transition">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    <span class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-2 rounded-full">2</span>
+                </button>
+                
+                <button id="themeBtn" class="hover:bg-white/20 p-2 rounded-lg transition">
+                    <i class="fas fa-palette text-xl"></i>
+                </button>
+                
+                <button id="userProfileBtn" class="flex items-center space-x-2 hover:bg-white/20 p-2 rounded-lg transition">
+                    <img src="/placeholder.svg?height=32&width=32" class="w-8 h-8 rounded-full border-2 border-white">
+                    <span class="hidden md:block">ผู้ใช้งาน</span>
+                    <i class="fas fa-chevron-down text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="sidebar-expanded fixed left-0 top-16 bottom-0 bg-gray-900 text-white shadow-2xl transition-all duration-300 z-40 overflow-y-auto">
+        <div class="p-4">
+            <!-- Sidebar Menu Items -->
+            <nav class="space-y-2">
+                <a href="#home" data-page="home" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-purple-600 transition active">
+                    <i class="fas fa-home text-xl w-6"></i>
+                    <span class="sidebar-text">หน้าแรก</span>
+                </a>
+                
+                <a href="#tv" data-page="tv" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-purple-600 transition">
+                    <i class="fas fa-tv text-xl w-6"></i>
+                    <span class="sidebar-text">ทีวี/วิดีโอ</span>
+                </a>
+                
+                <a href="#shop" data-page="shop" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-purple-600 transition">
+                    <i class="fas fa-store text-xl w-6"></i>
+                    <span class="sidebar-text">ร้านค้า</span>
+                </a>
+                
+                <a href="#pos" data-page="pos" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-purple-600 transition">
+                    <i class="fas fa-cash-register text-xl w-6"></i>
+                    <span class="sidebar-text">ระบบ POS</span>
+                </a>
+                
+                <a href="#designers" data-page="designers" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-purple-600 transition">
+                    <i class="fas fa-palette text-xl w-6"></i>
+                    <span class="sidebar-text">นักออกแบบ</span>
+                </a>
+                
+                <a href="#community" data-page="community" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-purple-600 transition">
+                    <i class="fas fa-users text-xl w-6"></i>
+                    <span class="sidebar-text">ชุมชน</span>
+                </a>
+                
+                <a href="#analytics" data-page="analytics" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-purple-600 transition">
+                    <i class="fas fa-chart-line text-xl w-6"></i>
+                    <span class="sidebar-text">วิเคราะห์ข้อมูล</span>
+                </a>
+                
+                <a href="#inventory" data-page="inventory" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-purple-600 transition">
+                    <i class="fas fa-boxes text-xl w-6"></i>
+                    <span class="sidebar-text">คลังสินค้า</span>
+                </a>
+                
+                <a href="#customers" data-page="customers" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-purple-600 transition">
+                    <i class="fas fa-user-friends text-xl w-6"></i>
+                    <span class="sidebar-text">ลูกค้า</span>
+                </a>
+                
+                <a href="#settings" data-page="settings" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-purple-600 transition">
+                    <i class="fas fa-cog text-xl w-6"></i>
+                    <span class="sidebar-text">การตั้งค่า</span>
+                </a>
+            </nav>
+            
+            <div class="mt-8 pt-8 border-t border-gray-700">
+                <div class="sidebar-text text-sm text-gray-400 mb-3 px-4">ภาษา</div>
+                <select class="w-full bg-gray-800 text-white px-4 py-2 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <option value="th">🇹🇭 ไทย</option>
+                    <option value="en">🇬🇧 English</option>
+                    <option value="zh">🇨🇳 中文</option>
+                    <option value="ja">🇯🇵 日本語</option>
+                </select>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main id="mainContent" class="main-content-expanded pt-20 pb-8 transition-all duration-300 min-h-screen">
+        
+        <!-- Home Page -->
+        <div id="homePage" class="page-content container mx-auto px-4">
+            <!-- Auto-Scrolling Banner Carousel -->
+            <div class="mb-8 rounded-2xl overflow-hidden shadow-2xl relative">
+                <div id="carousel" class="flex transition-transform duration-500">
+                    <div class="carousel-item relative">
+                        <img src="/placeholder.svg?height=400&width=1200" class="w-full h-[400px] object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-900/80 to-transparent flex items-center">
+                            <div class="text-white p-12">
+                                <h2 class="text-5xl font-bold mb-4">ยินดีต้อนรับสู่แพลตฟอร์มครบวงจร</h2>
+                                <p class="text-xl mb-6">เชื่อมโยงนักออกแบบ ร้านค้า และผู้ใช้งาน</p>
+                                <button class="bg-white text-purple-600 px-8 py-3 rounded-full font-bold hover:bg-purple-100 transition">
+                                    เริ่มต้นใช้งาน
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="carousel-item relative">
+                        <img src="/placeholder.svg?height=400&width=1200" class="w-full h-[400px] object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-r from-orange-900/80 to-transparent flex items-center">
+                            <div class="text-white p-12">
+                                <h2 class="text-5xl font-bold mb-4">ออกแบบอาหาร & เครื่องดื่ม</h2>
+                                <p class="text-xl mb-6">นักออกแบบมืออาชีพสำหรับธุรกิจอาหาร</p>
+                                <button class="bg-white text-orange-600 px-8 py-3 rounded-full font-bold hover:bg-orange-100 transition">
+                                    ดูผลงาน
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="carousel-item relative">
+                        <img src="/placeholder.svg?height=400&width=1200" class="w-full h-[400px] object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-transparent flex items-center">
+                            <div class="text-white p-12">
+                                <h2 class="text-5xl font-bold mb-4">การท่องเที่ยว & ท่องเที่ยว</h2>
+                                <p class="text-xl mb-6">สร้างประสบการณ์การท่องเที่ยวที่น่าจดจำ</p>
+                                <button class="bg-white text-blue-600 px-8 py-3 rounded-full font-bold hover:bg-blue-100 transition">
+                                    สำรวจเลย
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Carousel Navigation -->
+                <button id="prevBtn" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 backdrop-blur-md text-white p-3 rounded-full hover:bg-white/50 transition">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button id="nextBtn" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 backdrop-blur-md text-white p-3 rounded-full hover:bg-white/50 transition">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                
+                <!-- Carousel Indicators -->
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+                    <button class="carousel-indicator w-3 h-3 rounded-full bg-white active" data-index="0"></button>
+                    <button class="carousel-indicator w-3 h-3 rounded-full bg-white/50" data-index="1"></button>
+                    <button class="carousel-indicator w-3 h-3 rounded-full bg-white/50" data-index="2"></button>
+                </div>
+            </div>
+
+            <!-- Video Preview Section -->
+            <div class="mb-8 bg-white rounded-2xl shadow-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-video text-purple-600 mr-2"></i>
+                        วิดีโอแนะนำ
+                    </h3>
+                    <a href="#tv" data-page="tv" class="text-purple-600 hover:text-purple-800 font-semibold">
+                        ดูทั้งหมด <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="relative rounded-lg overflow-hidden group cursor-pointer">
+                        <img src="/placeholder.svg?height=200&width=350" class="w-full h-48 object-cover">
+                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                            <i class="fas fa-play-circle text-white text-5xl"></i>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 text-white">
+                            <p class="font-semibold">เทคโนโลยีใหม่ 2025</p>
+                            <p class="text-sm text-gray-300">1.2M views</p>
+                        </div>
+                    </div>
+                    <div class="relative rounded-lg overflow-hidden group cursor-pointer">
+                        <img src="/placeholder.svg?height=200&width=350" class="w-full h-48 object-cover">
+                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                            <i class="fas fa-play-circle text-white text-5xl"></i>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 text-white">
+                            <p class="font-semibold">จัดจานอาหารสไตล์โมเดิร์น</p>
+                            <p class="text-sm text-gray-300">850K views</p>
+                        </div>
+                    </div>
+                    <div class="relative rounded-lg overflow-hidden group cursor-pointer">
+                        <img src="/placeholder.svg?height=200&width=350" class="w-full h-48 object-cover">
+                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                            <i class="fas fa-play-circle text-white text-5xl"></i>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 text-white">
+                            <p class="font-semibold">เที่ยวไทยสุดมันส์</p>
+                            <p class="text-sm text-gray-300">620K views</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Industry Categories -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-briefcase text-purple-600 mr-2"></i>
+                    เลือกอุตสาหกรรม
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-8 text-white shadow-xl hover:shadow-2xl transition transform hover:-translate-y-2 cursor-pointer">
+                        <i class="fas fa-utensils text-5xl mb-4"></i>
+                        <h4 class="text-2xl font-bold mb-2">อาหาร & เครื่องดื่ม</h4>
+                        <p class="mb-4">ออกแบบเมนู, ถ่ายภาพอาหาร, จัดแสงเพื่อความน่าสนใจ</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">250+ นักออกแบบ</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl p-8 text-white shadow-xl hover:shadow-2xl transition transform hover:-translate-y-2 cursor-pointer">
+                        <i class="fas fa-plane-departure text-5xl mb-4"></i>
+                        <h4 class="text-2xl font-bold mb-2">การท่องเที่ยว</h4>
+                        <p class="mb-4">ออกแบบโปรแกรมทัวร์, สื่อการตลาด, UX/UI แอปท่องเที่ยว</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">180+ นักออกแบบ</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl p-8 text-white shadow-xl hover:shadow-2xl transition transform hover:-translate-y-2 cursor-pointer">
+                        <i class="fas fa-laptop-code text-5xl mb-4"></i>
+                        <h4 class="text-2xl font-bold mb-2">เทคโนโลยี</h4>
+                        <p class="mb-4">UI/UX Design, Branding ดิจิทัล, Motion Graphics</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">320+ นักออกแบบ</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Products -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-star text-yellow-500 mr-2"></i>
+                    สินค้าแนะนำ
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 cursor-pointer">
+                        <div class="relative">
+                            <img src="/placeholder.svg?height=200&width=300" class="w-full h-48 object-cover">
+                            <span class="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">-30%</span>
+                        </div>
+                        <div class="p-4">
+                            <h5 class="font-bold text-lg mb-2">เทมเพลตออกแบบ Pro</h5>
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-gray-300"></i>
+                                <span class="text-sm text-gray-600 ml-2">(4.0)</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="text-gray-400 line-through text-sm">฿1,500</span>
+                                    <span class="text-purple-600 font-bold text-xl ml-2">฿1,050</span>
+                                </div>
+                                <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                                    <i class="fas fa-cart-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 cursor-pointer">
+                        <div class="relative">
+                            <img src="/placeholder.svg?height=200&width=300" class="w-full h-48 object-cover">
+                            <span class="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold">ใหม่</span>
+                        </div>
+                        <div class="p-4">
+                            <h5 class="font-bold text-lg mb-2">คอร์สออกแบบกราฟิก</h5>
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <span class="text-sm text-gray-600 ml-2">(5.0)</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-purple-600 font-bold text-xl">฿2,990</span>
+                                <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                                    <i class="fas fa-cart-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 cursor-pointer">
+                        <img src="/placeholder.svg?height=200&width=300" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h5 class="font-bold text-lg mb-2">ชุดเครื่องมือดีไซน์</h5>
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star-half-alt text-yellow-400"></i>
+                                <span class="text-sm text-gray-600 ml-2">(4.5)</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-purple-600 font-bold text-xl">฿4,500</span>
+                                <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                                    <i class="fas fa-cart-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 cursor-pointer">
+                        <img src="/placeholder.svg?height=200&width=300" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h5 class="font-bold text-lg mb-2">สมาชิกพรีเมี่ยม</h5>
+                            <div class="flex items-center mb-2">
+                                <span class="text-sm text-gray-600">รายเดือน</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-purple-600 font-bold text-xl">฿599/เดือน</span>
+                                <button class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition">
+                                    <i class="fas fa-crown"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl">
+                    <i class="fas fa-users text-4xl mb-3"></i>
+                    <h4 class="text-3xl font-bold mb-1">50,000+</h4>
+                    <p class="text-blue-100">ผู้ใช้งาน</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-xl">
+                    <i class="fas fa-project-diagram text-4xl mb-3"></i>
+                    <h4 class="text-3xl font-bold mb-1">12,500+</h4>
+                    <p class="text-green-100">โปรเจ็กต์สำเร็จ</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl">
+                    <i class="fas fa-palette text-4xl mb-3"></i>
+                    <h4 class="text-3xl font-bold mb-1">750+</h4>
+                    <p class="text-purple-100">นักออกแบบ</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-xl">
+                    <i class="fas fa-award text-4xl mb-3"></i>
+                    <h4 class="text-3xl font-bold mb-1">4.8/5</h4>
+                    <p class="text-orange-100">คะแนนรีวิว</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TV/Video Page -->
+        <div id="tvPage" class="page-content container mx-auto px-4 hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-tv text-purple-600 mr-3"></i>
+                ระบบทีวีและวิดีโอออนไลน์
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Channel List -->
+                <div class="bg-white rounded-2xl shadow-lg p-4">
+                    <h3 class="font-bold text-lg mb-4 flex items-center justify-between">
+                        <span>รายการช่อง</span>
+                        <span class="text-sm text-gray-500">8 ช่อง</span>
+                    </h3>
+                    <div class="space-y-2" id="channelList">
+                        <div class="channel-item bg-purple-50 border-2 border-purple-500 rounded-lg p-3 cursor-pointer active" data-channel="1">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <img src="/placeholder.svg?height=40&width=40" class="w-10 h-10 rounded">
+                                    <div>
+                                        <p class="font-bold text-sm">Tech Channel</p>
+                                        <p class="text-xs text-gray-600">เทคโนโลยี</p>
+                                    </div>
+                                </div>
+                                <i class="fas fa-play-circle text-purple-600"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="channel-item bg-gray-50 hover:bg-gray-100 rounded-lg p-3 cursor-pointer transition" data-channel="2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <img src="/placeholder.svg?height=40&width=40" class="w-10 h-10 rounded">
+                                    <div>
+                                        <p class="font-bold text-sm">Food TV</p>
+                                        <p class="text-xs text-gray-600">อาหาร</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="channel-item bg-gray-50 hover:bg-gray-100 rounded-lg p-3 cursor-pointer transition" data-channel="3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <img src="/placeholder.svg?height=40&width=40" class="w-10 h-10 rounded">
+                                    <div>
+                                        <p class="font-bold text-sm">Travel World</p>
+                                        <p class="text-xs text-gray-600">ท่องเที่ยว</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="channel-item bg-gray-50 hover:bg-gray-100 rounded-lg p-3 cursor-pointer transition" data-channel="4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <img src="/placeholder.svg?height=40&width=40" class="w-10 h-10 rounded">
+                                    <div>
+                                        <p class="font-bold text-sm">Music Plus</p>
+                                        <p class="text-xs text-gray-600">เพลง</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <button class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
+                            <i class="fas fa-plus mr-2"></i>
+                            เพิ่มช่องใหม่
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Video Player -->
+                <div class="lg:col-span-3 space-y-4">
+                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                        <div id="videoPlayer" class="video-player relative bg-black">
+                            <video id="videoElement" class="w-full h-full" controls>
+                                <source src="/placeholder.svg" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div class="absolute top-4 right-4 flex space-x-2">
+                                <button class="glassmorphism text-white px-3 py-2 rounded-lg hover:bg-white/20 transition">
+                                    <i class="fas fa-closed-captioning"></i>
+                                </button>
+                                <button class="glassmorphism text-white px-3 py-2 rounded-lg hover:bg-white/20 transition">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="flex items-start justify-between mb-4">
+                                <div>
+                                    <h3 class="text-2xl font-bold text-gray-800 mb-2">เทคโนโลยีล่าสุด 2025</h3>
+                                    <p class="text-gray-600">Tech Channel • 1.2M views • เมื่อ 2 ชั่วโมงที่แล้ว</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="bg-purple-100 text-purple-600 px-4 py-2 rounded-lg hover:bg-purple-200 transition">
+                                        <i class="fas fa-thumbs-up mr-2"></i>
+                                        25K
+                                    </button>
+                                    <button class="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-200 transition">
+                                        <i class="fas fa-share mr-2"></i>
+                                        แชร์
+                                    </button>
+                                    <button class="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-200 transition">
+                                        <i class="fas fa-bookmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <p class="text-gray-700">สำรวจเทคโนโลยีและนวัตกรรมล่าสุดที่จะเปลี่ยนแปลงโลกในปี 2025 พร้อมกับผู้เชี่ยวชาญในสาขาต่างๆ</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EPG / Program Guide -->
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="font-bold text-xl mb-4">
+                            <i class="fas fa-calendar-alt text-purple-600 mr-2"></i>
+                            ตารางรายการ (EPG)
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-4 p-3 bg-purple-50 border-l-4 border-purple-500 rounded">
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-600">กำลังเล่น</p>
+                                    <p class="font-bold">14:00-15:00</p>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-bold">เทคโนโลยีล่าสุด 2025</p>
+                                    <p class="text-sm text-gray-600">สำรวจเทคโนโลยีที่กำลังมา</p>
+                                </div>
+                                <i class="fas fa-play-circle text-purple-600 text-2xl"></i>
+                            </div>
+                            
+                            <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded hover:bg-gray-100 transition cursor-pointer">
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-600">ต่อไป</p>
+                                    <p class="font-bold">15:00-16:00</p>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-bold">AI และอนาคตของมนุษยชาติ</p>
+                                    <p class="text-sm text-gray-600">ผลกระทบของ AI ต่อสังคม</p>
+                                </div>
+                                <i class="fas fa-clock text-gray-400 text-xl"></i>
+                            </div>
+                            
+                            <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded hover:bg-gray-100 transition cursor-pointer">
+                                <div class="text-center">
+                                    <p class="font-bold">16:00-17:00</p>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-bold">พื้นฐานการเขียนโปรแกรม</p>
+                                    <p class="text-sm text-gray-600">เริ่มต้นกับ Python</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My Playlist -->
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="font-bold text-xl mb-4">
+                            <i class="fas fa-list text-purple-600 mr-2"></i>
+                            เพลย์ลิสต์ของฉัน
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex items-center space-x-3 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100 transition">
+                                <img src="/placeholder.svg?height=80&width=120" class="w-20 h-14 object-cover rounded">
+                                <div class="flex-1">
+                                    <p class="font-semibold text-sm">การออกแบบ UI/UX สมัยใหม่</p>
+                                    <p class="text-xs text-gray-600">25:30</p>
+                                </div>
+                                <button class="text-red-500 hover:text-red-700">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="flex items-center space-x-3 bg-gray-50 rounded-lg p-3 cursor-pointer hover:bg-gray-100 transition">
+                                <img src="/placeholder.svg?height=80&width=120" class="w-20 h-14 object-cover rounded">
+                                <div class="flex-1">
+                                    <p class="font-semibold text-sm">สอน Photoshop เบื้องต้น</p>
+                                    <p class="text-xs text-gray-600">42:15</p>
+                                </div>
+                                <button class="text-red-500 hover:text-red-700">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Page -->
+        <div id="shopPage" class="page-content container mx-auto px-4 hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-store text-purple-600 mr-3"></i>
+                ร้านค้าออนไลน์
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Filters Sidebar -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="font-bold text-lg mb-4">ตัวกรอง</h3>
+                    
+                    <div class="mb-6">
+                        <label class="font-semibold text-sm text-gray-700 mb-2 block">หมวดหมู่</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2 text-purple-600" checked>
+                                <span class="text-sm">เทมเพลต (24)</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2 text-purple-600">
+                                <span class="text-sm">คอร์สเรียน (18)</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2 text-purple-600">
+                                <span class="text-sm">เครื่องมือ (12)</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2 text-purple-600">
+                                <span class="text-sm">eBook (8)</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="font-semibold text-sm text-gray-700 mb-2 block">ช่วงราคา</label>
+                        <div class="space-y-3">
+                            <input type="range" min="0" max="10000" value="5000" class="w-full">
+                            <div class="flex justify-between text-sm text-gray-600">
+                                <span>฿0</span>
+                                <span>฿10,000</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="font-semibold text-sm text-gray-700 mb-2 block">คะแนนรีวิว</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="radio" name="rating" class="mr-2 text-purple-600" checked>
+                                <span class="text-sm flex items-center">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <span class="ml-2">(5 ดาว)</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="rating" class="mr-2 text-purple-600">
+                                <span class="text-sm flex items-center">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-gray-300"></i>
+                                    <span class="ml-2">(4+ ดาว)</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
+                        ใช้ตัวกรอง
+                    </button>
+                    <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition mt-2">
+                        ล้างตัวกรอง
+                    </button>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="lg:col-span-3">
+                    <div class="flex items-center justify-between mb-6">
+                        <p class="text-gray-600">แสดง <span class="font-bold">62</span> สินค้า</p>
+                        <select class="bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option>ยอดนิยม</option>
+                            <option>ราคาต่ำสุด</option>
+                            <option>ราคาสูงสุด</option>
+                            <option>ใหม่ล่าสุด</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Product Cards (8 items) -->
+                        <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 cursor-pointer">
+                            <div class="relative">
+                                <img src="/placeholder.svg?height=200&width=300" class="w-full h-48 object-cover">
+                                <span class="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">Sale</span>
+                                <button class="absolute top-2 left-2 bg-white/80 backdrop-blur-sm text-gray-700 p-2 rounded-full hover:bg-white transition">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <span class="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">Digital</span>
+                                <h5 class="font-bold text-lg mt-2 mb-2">UI Kit สำหรับแอปมือถือ</h5>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <span class="text-sm text-gray-600 ml-2">(128)</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <span class="text-gray-400 line-through text-sm">฿2,500</span>
+                                        <span class="text-purple-600 font-bold text-xl ml-2">฿1,750</span>
+                                    </div>
+                                    <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 cursor-pointer">
+                            <div class="relative">
+                                <img src="/placeholder.svg?height=200&width=300" class="w-full h-48 object-cover">
+                                <span class="absolute top-2 right-2 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold">Course</span>
+                                <button class="absolute top-2 left-2 bg-white/80 backdrop-blur-sm text-gray-700 p-2 rounded-full hover:bg-white transition">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">Premium</span>
+                                <h5 class="font-bold text-lg mt-2 mb-2">Masterclass Photoshop 2025</h5>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star-half-alt text-yellow-400"></i>
+                                    <span class="text-sm text-gray-600 ml-2">(95)</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-purple-600 font-bold text-xl">฿3,990</span>
+                                    <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 cursor-pointer">
+                            <div class="relative">
+                                <img src="/placeholder.svg?height=200&width=300" class="w-full h-48 object-cover">
+                                <span class="absolute top-2 right-2 bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-bold">New</span>
+                                <button class="absolute top-2 left-2 bg-white/80 backdrop-blur-sm text-gray-700 p-2 rounded-full hover:bg-white transition">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <span class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">Icon Pack</span>
+                                <h5 class="font-bold text-lg mt-2 mb-2">5000 ไอคอน Vector</h5>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-gray-300"></i>
+                                    <span class="text-sm text-gray-600 ml-2">(42)</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-purple-600 font-bold text-xl">฿890</span>
+                                    <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 cursor-pointer">
+                            <div class="relative">
+                                <img src="/placeholder.svg?height=200&width=300" class="w-full h-48 object-cover">
+                                <button class="absolute top-2 left-2 bg-white/80 backdrop-blur-sm text-gray-700 p-2 rounded-full hover:bg-white transition">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full">Typography</span>
+                                <h5 class="font-bold text-lg mt-2 mb-2">ฟอนต์ไทยพรีเมี่ยม 50 แบบ</h5>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <span class="text-sm text-gray-600 ml-2">(156)</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-purple-600 font-bold text-xl">฿1,490</span>
+                                    <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 cursor-pointer">
+                            <div class="relative">
+                                <img src="/placeholder.svg?height=200&width=300" class="w-full h-48 object-cover">
+                                <span class="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-bold">Hot</span>
+                                <button class="absolute top-2 left-2 bg-white/80 backdrop-blur-sm text-red-500 p-2 rounded-full hover:bg-white transition">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">Template</span>
+                                <h5 class="font-bold text-lg mt-2 mb-2">เว็บไซต์ E-commerce Pro</h5>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <span class="text-sm text-gray-600 ml-2">(203)</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-purple-600 font-bold text-xl">฿4,990</span>
+                                    <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 cursor-pointer">
+                            <div class="relative">
+                                <img src="/placeholder.svg?height=200&width=300" class="w-full h-48 object-cover">
+                                <button class="absolute top-2 left-2 bg-white/80 backdrop-blur-sm text-gray-700 p-2 rounded-full hover:bg-white transition">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <span class="text-xs bg-pink-100 text-pink-600 px-2 py-1 rounded-full">Mockup</span>
+                                <h5 class="font-bold text-lg mt-2 mb-2">Mockup Bundle 200+</h5>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star-half-alt text-yellow-400"></i>
+                                    <span class="text-sm text-gray-600 ml-2">(87)</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-purple-600 font-bold text-xl">฿2,290</span>
+                                    <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="flex justify-center items-center space-x-2 mt-8">
+                        <button class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="px-4 py-2 bg-purple-600 text-white rounded-lg">1</button>
+                        <button class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">2</button>
+                        <button class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">3</button>
+                        <button class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">...</button>
+                        <button class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">10</button>
+                        <button class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- POS Page -->
+        <div id="posPage" class="page-content container mx-auto px-4 hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-cash-register text-purple-600 mr-3"></i>
+                ระบบ POS (Point of Sale)
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Products Selection -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-xl">เลือกสินค้า</h3>
+                            <input type="text" placeholder="ค้นหาสินค้า..." class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="posProducts">
+                            <div class="pos-product-item bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 cursor-pointer hover:shadow-lg transition border-2 border-transparent hover:border-purple-500" data-id="1" data-name="UI Kit Pro" data-price="1750">
+                                <div class="text-center">
+                                    <img src="/placeholder.svg?height=80&width=80" class="w-20 h-20 mx-auto mb-2">
+                                    <p class="font-bold text-sm">UI Kit Pro</p>
+                                    <p class="text-purple-600 font-bold">฿1,750</p>
+                                </div>
+                            </div>
+                            
+                            <div class="pos-product-item bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 cursor-pointer hover:shadow-lg transition border-2 border-transparent hover:border-blue-500" data-id="2" data-name="Photoshop Course" data-price="3990">
+                                <div class="text-center">
+                                    <img src="/placeholder.svg?height=80&width=80" class="w-20 h-20 mx-auto mb-2">
+                                    <p class="font-bold text-sm">Photoshop Course</p>
+                                    <p class="text-blue-600 font-bold">฿3,990</p>
+                                </div>
+                            </div>
+                            
+                            <div class="pos-product-item bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 cursor-pointer hover:shadow-lg transition border-2 border-transparent hover:border-green-500" data-id="3" data-name="Icon Pack" data-price="890">
+                                <div class="text-center">
+                                    <img src="/placeholder.svg?height=80&width=80" class="w-20 h-20 mx-auto mb-2">
+                                    <p class="font-bold text-sm">Icon Pack</p>
+                                    <p class="text-green-600 font-bold">฿890</p>
+                                </div>
+                            </div>
+                            
+                            <div class="pos-product-item bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 cursor-pointer hover:shadow-lg transition border-2 border-transparent hover:border-orange-500" data-id="4" data-name="Font Collection" data-price="1490">
+                                <div class="text-center">
+                                    <img src="/placeholder.svg?height=80&width=80" class="w-20 h-20 mx-auto mb-2">
+                                    <p class="font-bold text-sm">Font Collection</p>
+                                    <p class="text-orange-600 font-bold">฿1,490</p>
+                                </div>
+                            </div>
+                            
+                            <div class="pos-product-item bg-gradient-to-br from-pink-50 to-pink-100 rounded-lg p-4 cursor-pointer hover:shadow-lg transition border-2 border-transparent hover:border-pink-500" data-id="5" data-name="Web Template" data-price="4990">
+                                <div class="text-center">
+                                    <img src="/placeholder.svg?height=80&width=80" class="w-20 h-20 mx-auto mb-2">
+                                    <p class="font-bold text-sm">Web Template</p>
+                                    <p class="text-pink-600 font-bold">฿4,990</p>
+                                </div>
+                            </div>
+                            
+                            <div class="pos-product-item bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-4 cursor-pointer hover:shadow-lg transition border-2 border-transparent hover:border-indigo-500" data-id="6" data-name="Mockup Bundle" data-price="2290">
+                                <div class="text-center">
+                                    <img src="/placeholder.svg?height=80&width=80" class="w-20 h-20 mx-auto mb-2">
+                                    <p class="font-bold text-sm">Mockup Bundle</p>
+                                    <p class="text-indigo-600 font-bold">฿2,290</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart & Payment -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 sticky top-24">
+                        <h3 class="font-bold text-xl mb-4 flex items-center justify-between">
+                            <span>รายการสินค้า</span>
+                            <button id="clearCart" class="text-red-500 text-sm hover:text-red-700">
+                                <i class="fas fa-trash mr-1"></i>ล้าง
+                            </button>
+                        </h3>
+                        
+                        <div id="cartItems" class="space-y-3 mb-4 max-h-60 overflow-y-auto">
+                            <!-- Cart items will be added here -->
+                            <div class="text-center text-gray-400 py-8">
+                                <i class="fas fa-shopping-cart text-4xl mb-2"></i>
+                                <p>ยังไม่มีสินค้าในตะกร้า</p>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t pt-4 space-y-3">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">ราคารวม</span>
+                                <span id="subtotal" class="font-bold">฿0</span>
+                            </div>
+                            
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">ส่วนลด</span>
+                                <span id="discount" class="text-green-600 font-bold">-฿0</span>
+                            </div>
+                            
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">VAT (7%)</span>
+                                <span id="vat" class="font-bold">฿0</span>
+                            </div>
+                            
+                            <div class="flex justify-between text-xl font-bold border-t pt-3">
+                                <span>รวมทั้งสิ้น</span>
+                                <span id="total" class="text-purple-600">฿0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 space-y-3">
+                            <input type="text" placeholder="รหัสคูปอง" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            
+                            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option>วิธีชำระเงิน</option>
+                                <option>เงินสด</option>
+                                <option>บัตรเครดิต</option>
+                                <option>QR Code</option>
+                                <option>โอนเงิน</option>
+                            </select>
+                            
+                            <button id="checkoutBtn" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-bold hover:from-purple-700 hover:to-pink-700 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <i class="fas fa-credit-card mr-2"></i>
+                                ชำระเงิน
+                            </button>
+                            
+                            <button class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition">
+                                <i class="fas fa-save mr-2"></i>
+                                บันทึกออเดอร์
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 mt-6">
+                <h3 class="font-bold text-xl mb-4">
+                    <i class="fas fa-history text-purple-600 mr-2"></i>
+                    ธุรกรรมล่าสุด
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">เลขที่</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">เวลา</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">สินค้า</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">ยอดรวม</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">การชำระ</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">สถานะ</th>
+                                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">การจัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-sm">#INV-2025-001</td>
+                                <td class="px-4 py-3 text-sm">14:35</td>
+                                <td class="px-4 py-3 text-sm">UI Kit Pro, Icon Pack</td>
+                                <td class="px-4 py-3 text-sm font-bold">฿2,640</td>
+                                <td class="px-4 py-3 text-sm">เงินสด</td>
+                                <td class="px-4 py-3">
+                                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">สำเร็จ</span>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <button class="text-purple-600 hover:text-purple-800 mx-1">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                    <button class="text-blue-600 hover:text-blue-800 mx-1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-sm">#INV-2025-002</td>
+                                <td class="px-4 py-3 text-sm">14:12</td>
+                                <td class="px-4 py-3 text-sm">Photoshop Course</td>
+                                <td class="px-4 py-3 text-sm font-bold">฿3,990</td>
+                                <td class="px-4 py-3 text-sm">QR Code</td>
+                                <td class="px-4 py-3">
+                                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">สำเร็จ</span>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <button class="text-purple-600 hover:text-purple-800 mx-1">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                    <button class="text-blue-600 hover:text-blue-800 mx-1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-sm">#INV-2025-003</td>
+                                <td class="px-4 py-3 text-sm">13:45</td>
+                                <td class="px-4 py-3 text-sm">Web Template, Mockup...</td>
+                                <td class="px-4 py-3 text-sm font-bold">฿7,280</td>
+                                <td class="px-4 py-3 text-sm">บัตรเครดิต</td>
+                                <td class="px-4 py-3">
+                                    <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">รอชำระ</span>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <button class="text-purple-600 hover:text-purple-800 mx-1">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                    <button class="text-blue-600 hover:text-blue-800 mx-1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Designers Page -->
+        <div id="designersPage" class="page-content container mx-auto px-4 hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-palette text-purple-600 mr-3"></i>
+                นักออกแบบมืออาชีพ
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer">
+                    <div class="flex items-start space-x-4">
+                        <img src="/placeholder.svg?height=80&width=80" class="w-20 h-20 rounded-full border-4 border-purple-200">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-lg">สมชาย ใจดี</h4>
+                            <p class="text-sm text-gray-600 mb-2">UI/UX Designer</p>
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <span class="text-sm text-gray-600 ml-2">(5.0)</span>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">เทคโนโลยี</span>
+                                <span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">Mobile App</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-purple-600 font-bold">฿2,500/ชม.</span>
+                                <button class="bg-purple-600 text-white px-4 py-1 rounded-lg text-sm hover:bg-purple-700 transition">
+                                    ติดต่อ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer">
+                    <div class="flex items-start space-x-4">
+                        <img src="/placeholder.svg?height=80&width=80" class="w-20 h-20 rounded-full border-4 border-pink-200">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-lg">วิภาวี สร้างสรรค์</h4>
+                            <p class="text-sm text-gray-600 mb-2">Food Photographer</p>
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star-half-alt text-yellow-400"></i>
+                                <span class="text-sm text-gray-600 ml-2">(4.8)</span>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">อาหาร</span>
+                                <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">ถ่ายภาพ</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-pink-600 font-bold">฿3,000/ชม.</span>
+                                <button class="bg-pink-600 text-white px-4 py-1 rounded-lg text-sm hover:bg-pink-700 transition">
+                                    ติดต่อ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer">
+                    <div class="flex items-start space-x-4">
+                        <img src="/placeholder.svg?height=80&width=80" class="w-20 h-20 rounded-full border-4 border-blue-200">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-lg">ธนากร ท่องเที่ยว</h4>
+                            <p class="text-sm text-gray-600 mb-2">Travel Content Creator</p>
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-gray-300"></i>
+                                <span class="text-sm text-gray-600 ml-2">(4.2)</span>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">ท่องเที่ยว</span>
+                                <span class="text-xs bg-cyan-100 text-cyan-600 px-2 py-1 rounded-full">วิดีโอ</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-blue-600 font-bold">฿1,800/ชม.</span>
+                                <button class="bg-blue-600 text-white px-4 py-1 rounded-lg text-sm hover:bg-blue-700 transition">
+                                    ติดต่อ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Assistant Section -->
+            <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-lg p-8 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">
+                            <i class="fas fa-wand-magic-sparkles text-purple-600 mr-2"></i>
+                            Creative Assistant AI
+                        </h3>
+                        <p class="text-gray-600">ให้ AI ช่วยคุณคิดโจทย์งานออกแบบอัจฉริยะ</p>
+                    </div>
+                    <div class="text-5xl">✨</div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <textarea id="aiPrompt" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none" placeholder="พิมพ์ความต้องการของคุณ เช่น 'อยากทำโลโก้ร้านกาแฟสไตล์มินิมอล' หรือ 'ต้องการถ่ายรูปขนมไทยให้ดูโมเดิร์น'"></textarea>
+                    
+                    <button id="generateAIBrief" class="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-bold hover:from-purple-700 hover:to-pink-700 transition">
+                        <i class="fas fa-sparkles mr-2"></i>
+                        สร้างโจทย์งานออกแบบด้วย AI
+                    </button>
+                    
+                    <div id="aiResponse" class="mt-4 hidden">
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-4">
+                            <h4 class="font-bold text-lg mb-3 flex items-center">
+                                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                คำแนะนำจาก AI
+                            </h4>
+                            <div id="aiResponseContent" class="space-y-3 text-gray-700">
+                                <!-- AI response will be inserted here -->
+                            </div>
+                            <button id="copyAIResponse" class="mt-4 bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-50 transition">
+                                <i class="fas fa-copy mr-2"></i>
+                                คัดลอกโจทย์งาน
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Page -->
+        <div id="analyticsPage" class="page-content container mx-auto px-4 hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-chart-line text-purple-600 mr-3"></i>
+                วิเคราะห์ข้อมูลและรายงาน
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-600">ยอดขายวันนี้</span>
+                        <i class="fas fa-dollar-sign text-green-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-800">฿45,280</h3>
+                    <p class="text-sm text-green-600 mt-2">
+                        <i class="fas fa-arrow-up mr-1"></i>
+                        +12.5% จากเมื่อวาน
+                    </p>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-600">ออเดอร์วันนี้</span>
+                        <i class="fas fa-shopping-bag text-blue-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-800">28</h3>
+                    <p class="text-sm text-blue-600 mt-2">
+                        <i class="fas fa-arrow-up mr-1"></i>
+                        +8 ออเดอร์
+                    </p>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-600">ลูกค้าใหม่</span>
+                        <i class="fas fa-user-plus text-purple-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-800">12</h3>
+                    <p class="text-sm text-purple-600 mt-2">
+                        <i class="fas fa-arrow-up mr-1"></i>
+                        +4 คน
+                    </p>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-600">ค่าเฉลี่ย/ออเดอร์</span>
+                        <i class="fas fa-chart-pie text-orange-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-800">฿1,617</h3>
+                    <p class="text-sm text-orange-600 mt-2">
+                        <i class="fas fa-arrow-up mr-1"></i>
+                        +5.2%
+                    </p>
+                </div>
+            </div>
+
+            <!-- Chart Placeholder -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                <h3 class="font-bold text-xl mb-4">กราฟยอดขาย 7 วันย้อนหลัง</h3>
+                <div class="h-64 flex items-end justify-between space-x-2">
+                    <div class="flex-1 bg-gradient-to-t from-purple-500 to-purple-300 rounded-t-lg" style="height: 60%"></div>
+                    <div class="flex-1 bg-gradient-to-t from-purple-500 to-purple-300 rounded-t-lg" style="height: 75%"></div>
+                    <div class="flex-1 bg-gradient-to-t from-purple-500 to-purple-300 rounded-t-lg" style="height: 50%"></div>
+                    <div class="flex-1 bg-gradient-to-t from-purple-500 to-purple-300 rounded-t-lg" style="height: 85%"></div>
+                    <div class="flex-1 bg-gradient-to-t from-purple-500 to-purple-300 rounded-t-lg" style="height: 70%"></div>
+                    <div class="flex-1 bg-gradient-to-t from-purple-500 to-purple-300 rounded-t-lg" style="height: 90%"></div>
+                    <div class="flex-1 bg-gradient-to-t from-purple-500 to-purple-300 rounded-t-lg" style="height: 100%"></div>
+                </div>
+                <div class="flex justify-between mt-4 text-sm text-gray-600">
+                    <span>จ.</span>
+                    <span>อ.</span>
+                    <span>พ.</span>
+                    <span>พฤ.</span>
+                    <span>ศ.</span>
+                    <span>ส.</span>
+                    <span>อา.</span>
+                </div>
+            </div>
+
+            <!-- Top Products -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                <h3 class="font-bold text-xl mb-4">สินค้าขายดี Top 5</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl font-bold text-yellow-600">1</span>
+                            <img src="/placeholder.svg?height=50&width=50" class="w-12 h-12 rounded">
+                            <div>
+                                <p class="font-bold">Web Template Pro</p>
+                                <p class="text-sm text-gray-600">ขายได้ 45 ชิ้น</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-lg text-green-600">฿224,550</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl font-bold text-gray-400">2</span>
+                            <img src="/placeholder.svg?height=50&width=50" class="w-12 h-12 rounded">
+                            <div>
+                                <p class="font-bold">Photoshop Course</p>
+                                <p class="text-sm text-gray-600">ขายได้ 38 ชิ้น</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-lg text-green-600">฿151,620</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl font-bold text-gray-400">3</span>
+                            <img src="/placeholder.svg?height=50&width=50" class="w-12 h-12 rounded">
+                            <div>
+                                <p class="font-bold">UI Kit Pro</p>
+                                <p class="text-sm text-gray-600">ขายได้ 32 ชิ้น</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-lg text-green-600">฿56,000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Community Page -->
+        <div id="communityPage" class="page-content container mx-auto px-4 hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-users text-purple-600 mr-3"></i>
+                ชุมชนและกระดานสนทนา
+            </h2>
+            <p class="text-gray-600">Coming soon...</p>
+        </div>
+
+        <!-- Inventory Page -->
+        <div id="inventoryPage" class="page-content container mx-auto px-4 hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-boxes text-purple-600 mr-3"></i>
+                จัดการคลังสินค้า
+            </h2>
+            <p class="text-gray-600">Coming soon...</p>
+        </div>
+
+        <!-- Customers Page -->
+        <div id="customersPage" class="page-content container mx-auto px-4 hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-user-friends text-purple-600 mr-3"></i>
+                จัดการข้อมูลลูกค้า
+            </h2>
+            <p class="text-gray-600">Coming soon...</p>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settingsPage" class="page-content container mx-auto px-4 hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-cog text-purple-600 mr-3"></i>
+                การตั้งค่าระบบ
+            </h2>
+            <p class="text-gray-600">Coming soon...</p>
+        </div>
+    </main>
+
+    <!-- Notification Panel -->
+    <div id="notificationPanel" class="fixed top-16 right-4 w-96 bg-white rounded-2xl shadow-2xl z-50 hidden">
+        <div class="p-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-lg">การแจ้งเตือน</h3>
+                <button id="closeNotifications" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="max-h-96 overflow-y-auto">
+            <div class="p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                <div class="flex items-start space-x-3">
+                    <div class="bg-blue-100 p-2 rounded-full">
+                        <i class="fas fa-shopping-cart text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-sm">ออเดอร์ใหม่ #2025-004</p>
+                        <p class="text-xs text-gray-600">มีออเดอร์ใหม่เข้ามา ยอด ฿2,500</p>
+                        <p class="text-xs text-gray-400 mt-1">2 นาทีที่แล้ว</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                <div class="flex items-start space-x-3">
+                    <div class="bg-green-100 p-2 rounded-full">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-sm">การชำระเงินสำเร็จ</p>
+                        <p class="text-xs text-gray-600">ลูกค้าชำระเงินสำเร็จแล้ว</p>
+                        <p class="text-xs text-gray-400 mt-1">15 นาทีที่แล้ว</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                <div class="flex items-start space-x-3">
+                    <div class="bg-yellow-100 p-2 rounded-full">
+                        <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-sm">สินค้าใกล้หมด</p>
+                        <p class="text-xs text-gray-600">UI Kit Pro เหลือเพียง 3 ชิ้น</p>
+                        <p class="text-xs text-gray-400 mt-1">1 ชั่วโมงที่แล้ว</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 border-t border-gray-200">
+            <button class="w-full text-center text-purple-600 font-semibold hover:text-purple-800">
+                ดูทั้งหมด
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat Panel -->
+    <div id="chatPanel" class="fixed top-16 right-4 w-96 bg-white rounded-2xl shadow-2xl z-50 hidden">
+        <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-pink-600 rounded-t-2xl text-white">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-lg">ข้อความ</h3>
+                <button id="closeChat" class="hover:bg-white/20 p-2 rounded-lg transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="max-h-96 overflow-y-auto">
+            <div class="p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                <div class="flex items-start space-x-3">
+                    <img src="/placeholder.svg?height=40&width=40" class="w-10 h-10 rounded-full">
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <p class="font-semibold text-sm">สมชาย ใจดี</p>
+                            <span class="text-xs text-gray-400">10:30</span>
+                        </div>
+                        <p class="text-sm text-gray-600">สวัสดีครับ ผมสนใจโปรเจ็กต์นะครับ</p>
+                        <span class="inline-block mt-1 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">ใหม่</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                <div class="flex items-start space-x-3">
+                    <img src="/placeholder.svg?height=40&width=40" class="w-10 h-10 rounded-full">
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <p class="font-semibold text-sm">วิภาวี สร้างสรรค์</p>
+                            <span class="text-xs text-gray-400">เมื่อวาน</span>
+                        </div>
+                        <p class="text-sm text-gray-600">ขอบคุณสำหรับโปรเจ็กต์ที่ผ่านมาครับ</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                <div class="flex items-start space-x-3">
+                    <img src="/placeholder.svg?height=40&width=40" class="w-10 h-10 rounded-full">
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <p class="font-semibold text-sm">ธนากร ท่องเที่ยว</p>
+                            <span class="text-xs text-gray-400">2 วันที่แล้ว</span>
+                        </div>
+                        <p class="text-sm text-gray-600">พรุ่งนี้ส่งไฟล์ให้นะครับ</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 border-t border-gray-200">
+            <div class="flex space-x-2">
+                <input type="text" placeholder="พิมพ์ข้อความ..." class="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <button class="bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-purple-700 transition">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shopping Cart Panel -->
+    <div id="cartPanel" class="fixed top-16 right-4 w-96 bg-white rounded-2xl shadow-2xl z-50 hidden">
+        <div class="p-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-lg">ตะกร้าสินค้า (2)</h3>
+                <button id="closeCartPanel" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="max-h-96 overflow-y-auto p-4 space-y-4">
+            <div class="flex items-center space-x-3 bg-gray-50 rounded-lg p-3">
+                <img src="/placeholder.svg?height=60&width=60" class="w-16 h-16 object-cover rounded">
+                <div class="flex-1">
+                    <p class="font-semibold text-sm">UI Kit Pro</p>
+                    <p class="text-purple-600 font-bold">฿1,750</p>
+                </div>
+                <button class="text-red-500 hover:text-red-700">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            
+            <div class="flex items-center space-x-3 bg-gray-50 rounded-lg p-3">
+                <img src="/placeholder.svg?height=60&width=60" class="w-16 h-16 object-cover rounded">
+                <div class="flex-1">
+                    <p class="font-semibold text-sm">Icon Pack 5000+</p>
+                    <p class="text-purple-600 font-bold">฿890</p>
+                </div>
+                <button class="text-red-500 hover:text-red-700">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-4 border-t border-gray-200">
+            <div class="flex justify-between mb-4">
+                <span class="font-semibold">รวมทั้งสิ้น:</span>
+                <span class="text-xl font-bold text-purple-600">฿2,640</span>
+            </div>
+            <button class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-bold hover:from-purple-700 hover:to-pink-700 transition">
+                <i class="fas fa-credit-card mr-2"></i>
+                ชำระเงิน
+            </button>
+        </div>
+    </div>
+
+    <!-- Theme Selector Modal -->
+    <div id="themeModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-6 text-center">เลือกธีมสี</h3>
+            <div class="space-y-4">
+                <button class="theme-option w-full p-4 rounded-xl border-2 border-gray-200 hover:border-purple-500 transition flex items-center justify-between" data-theme="light">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-white to-gray-100 border border-gray-300"></div>
+                        <span class="font-semibold">Light Mode</span>
+                    </div>
+                    <i class="fas fa-sun text-yellow-500 text-xl"></i>
+                </button>
+                
+                <button class="theme-option w-full p-4 rounded-xl border-2 border-gray-200 hover:border-purple-500 transition flex items-center justify-between" data-theme="dark">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-gray-800 to-gray-900"></div>
+                        <span class="font-semibold">Dark Mode</span>
+                    </div>
+                    <i class="fas fa-moon text-indigo-500 text-xl"></i>
+                </button>
+                
+                <button class="theme-option w-full p-4 rounded-xl border-2 border-gray-200 hover:border-purple-500 transition flex items-center justify-between" data-theme="warm">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-100 to-orange-100"></div>
+                        <span class="font-semibold">Warm Mode</span>
+                    </div>
+                    <i class="fas fa-fire text-orange-500 text-xl"></i>
+                </button>
+            </div>
+            <button id="closeThemeModal" class="w-full mt-6 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition">
+                ปิด
+            </button>
+        </div>
+    </div>
+
+    <!-- AI Assistant Modal -->
+    <div id="aiModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold">
+                    <i class="fas fa-wand-magic-sparkles text-purple-600 mr-2"></i>
+                    Creative Assistant AI
+                </h3>
+                <button id="closeAIModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 mb-6">
+                <p class="text-gray-700 mb-4">ให้ AI ช่วยคุณคิดโจทย์งานออกแบบอัจฉริยะ บอกความต้องการของคุณแบบสั้นๆ และ AI จะช่วยวิเคราะห์และแนะนำสไตล์ คู่สี และร่างประกาศหางานให้คุณ!</p>
+                <textarea id="aiModalPrompt" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none" placeholder="เช่น: อยากทำโลโก้ร้านกาแฟสไตล์มินิมอล, ต้องการถ่ายรูปขนมไทยให้ดูโมเดิร์น"></textarea>
+                
+                <button id="generateAIBriefModal" class="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-bold hover:from-purple-700 hover:to-pink-700 transition">
+                    <i class="fas fa-sparkles mr-2"></i>
+                    สร้างโจทย์งานออกแบบ
+                </button>
+            </div>
+            
+            <div id="aiModalResponse" class="hidden">
+                <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl p-6">
+                    <h4 class="font-bold text-xl mb-4 flex items-center">
+                        <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                        คำแนะนำจาก AI
+                    </h4>
+                    <div id="aiModalResponseContent" class="space-y-4 text-gray-700">
+                        <!-- AI response will be inserted here -->
+                    </div>
+                    <button id="copyAIResponseModal" class="mt-6 bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition">
+                        <i class="fas fa-copy mr-2"></i>
+                        คัดลอกโจทย์งาน
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Added Inline Chat Panel -->
+    <div id="inlineChatPanel" class="hidden">
+        <div class="inline-chat-overlay" onclick="closeInlineChat()"></div>
+        <div class="inline-chat-box" style="max-width: 800px;">
+            <div class="p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-t-2xl">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-comment-dots text-2xl"></i>
+                        <div>
+                            <h3 class="font-bold text-lg">แชทโหมดถาม - Ask Mode</h3>
+                            <p class="text-xs text-purple-100">พิมพ์ Ctrl+I เพื่อเปิด/ปิด | ใช้ @workspace สำหรับบริบทโปรเจกต์</p>
+                        </div>
+                    </div>
+                    <button onclick="closeInlineChat()" class="hover:bg-white/20 p-2 rounded-lg transition">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Workspace Context Section -->
+            <div class="p-4 bg-purple-50 border-b border-purple-200">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-folder-tree text-purple-600"></i>
+                        <span class="font-semibold text-sm text-purple-900">Workspace Context</span>
+                    </div>
+                    <button onclick="clearWorkspaceContext()" class="text-xs text-purple-600 hover:text-purple-800 underline">
+                        ล้างบริบท
+                    </button>
+                </div>
+                
+                <!-- File Drop Zone -->
+                <div id="fileDropZone" class="file-drop-zone rounded-lg p-4 text-center cursor-pointer">
+                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                    <p class="text-sm text-gray-600 mb-1">ลากและวางไฟล์ที่นี่เพื่อเพิ่มบริบท</p>
+                    <p class="text-xs text-gray-500">หรือคลิกเพื่อเลือกไฟล์จาก Explorer</p>
+                    <input type="file" id="fileInput" multiple class="hidden" onchange="handleFileSelect(event)">
+                </div>
+                
+                <!-- Context Files List -->
+                <div id="contextFilesList" class="mt-3 space-y-2 max-h-32 overflow-y-auto">
+                    <!-- Files will be added here -->
+                </div>
+            </div>
+            
+            <div class="p-6 max-h-96 overflow-y-auto">
+                <div id="inlineChatMessages" class="space-y-4">
+                    <!-- Welcome message -->
+                    <div class="chat-message flex items-start space-x-2">
+                        <div class="bg-gradient-to-r from-purple-500 to-indigo-500 text-white p-2 rounded-full">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded-lg max-w-md">
+                            <p class="text-sm">สวัสดีครับ! ผมพร้อมช่วยคุณแล้ว 🤖</p>
+                            <p class="text-xs text-gray-500 mt-2">
+                                💡 ลองใช้:<br>
+                                • <code class="bg-white px-1 rounded">@workspace /explain</code> เพื่ออธิบายโปรเจกต์<br>
+                                • <code class="bg-white px-1 rounded">/tests</code> เพื่อสร้างการทดสอบ
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="mt-4 grid grid-cols-2 gap-2">
+                    <button onclick="quickAction('generate-test')" class="flex items-center justify-center space-x-2 bg-blue-50 hover:bg-blue-100 text-blue-600 p-3 rounded-lg transition">
+                        <i class="fas fa-flask"></i>
+                        <span class="text-sm font-semibold">สร้างการทดสอบ</span>
+                    </button>
+                    <button onclick="quickAction('explain-code')" class="flex items-center justify-center space-x-2 bg-green-50 hover:bg-green-100 text-green-600 p-3 rounded-lg transition">
+                        <i class="fas fa-lightbulb"></i>
+                        <span class="text-sm font-semibold">อธิบายโค้ด</span>
+                    </button>
+                    <button onclick="quickAction('optimize')" class="flex items-center justify-center space-x-2 bg-orange-50 hover:bg-orange-100 text-orange-600 p-3 rounded-lg transition">
+                        <i class="fas fa-rocket"></i>
+                        <span class="text-sm font-semibold">ปรับปรุงโค้ด</span>
+                    </button>
+                    <button onclick="quickAction('debug')" class="flex items-center justify-center space-x-2 bg-red-50 hover:bg-red-100 text-red-600 p-3 rounded-lg transition">
+                        <i class="fas fa-bug"></i>
+                        <span class="text-sm font-semibold">แก้ไขบั๊ก</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200">
+                <div class="flex items-end space-x-2">
+                    <textarea id="inlineChatInput" 
+                              placeholder="พิมพ์ข้อความ (ลอง @workspace หรือ /tests)..." 
+                              class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                              rows="2"></textarea>
+                    <button onclick="sendInlineChatMessage()" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-3 rounded-lg hover:shadow-lg transition">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                    <i class="fas fa-keyboard mr-1"></i>
+                    กด Enter เพื่อส่ง | Shift+Enter เพื่อขึ้นบรรทัดใหม่
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Added Code Editor & Testing Panel -->
+    <div id="codeEditorPanel" class="hidden fixed inset-4 bg-white rounded-2xl shadow-2xl z-50 overflow-hidden">
+        <div class="h-full flex flex-col">
+            <!-- Header -->
+            <div class="p-4 bg-gradient-to-r from-gray-800 to-gray-900 text-white flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-code text-2xl"></i>
+                    <div>
+                        <h3 class="font-bold text-lg">Code Editor & Testing Framework</h3>
+                        <p class="text-xs text-gray-300">เลือกโค้ดและกด Ctrl+I เพื่อแชท | Ctrl+Shift+T เปิดแผงนี้</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="runTests()" class="flex items-center space-x-2 bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-play"></i>
+                        <span>รันการทดสอบ</span>
+                    </button>
+                    <button onclick="closeCodeEditor()" class="hover:bg-white/20 p-2 rounded-lg transition">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="flex-1 flex overflow-hidden">
+                <!-- Left: Code Editor -->
+                <div class="flex-1 flex flex-col border-r border-gray-200">
+                    <div class="p-3 bg-gray-100 border-b border-gray-200 flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-file-code text-purple-600"></i>
+                            <span class="font-semibold text-sm">main.js</span>
+                            <span class="text-xs text-gray-500">| คลิกบรรทัดเพื่อเลือก</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="applyInEditor()" class="apply-in-editor-btn flex items-center space-x-1 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white text-xs px-3 py-1 rounded transition">
+                                <i class="fas fa-arrow-right"></i>
+                                <span>นำไปใช้ในตัวแก้ไข</span>
+                            </button>
+                            <button onclick="generateUnitTests()" class="flex items-center space-x-1 bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded transition">
+                                <i class="fas fa-flask"></i>
+                                <span>สร้างการทดสอบ</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-auto">
+                        <pre id="codeContent" class="code-editor h-full">
+<code class="code-line" data-line="1">function calculateTotal(items) {</code>
+<code class="code-line" data-line="2">    let total = 0;</code>
+<code class="code-line" data-line="3">    for (let item of items) {</code>
+<code class="code-line" data-line="4">        total += item.price * item.quantity;</code>
+<code class="code-line" data-line="5">    }</code>
+<code class="code-line" data-line="6">    return total;</code>
+<code class="code-line" data-line="7">}</code>
+<code class="code-line" data-line="8"></code>
+<code class="code-line" data-line="9">function applyDiscount(total, discountPercent) {</code>
+<code class="code-line" data-line="10">    return total * (1 - discountPercent / 100);</code>
+<code class="code-line" data-line="11">}</code>
+<code class="code-line" data-line="12"></code>
+<code class="code-line" data-line="13">function calculateTax(amount, taxRate) {</code>
+<code class="code-line" data-line="14">    return amount * (taxRate / 100);</code>
+<code class="code-line" data-line="15">}</code>
+                        </pre>
+                    </div>
+                </div>
+                
+                <!-- Right: Test Results -->
+                <div class="w-1/2 flex flex-col bg-gray-50">
+                    <div class="p-3 bg-gray-100 border-b border-gray-200">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-vial text-green-600"></i>
+                            <span class="font-semibold text-sm">ผลการทดสอบ</span>
+                            <span id="testBadge" class="bg-gray-300 text-gray-700 text-xs px-2 py-0.5 rounded-full">0 tests</span>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-auto p-4">
+                        <div id="testResults" class="space-y-3">
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+                                <p class="text-sm text-yellow-700">
+                                    <i class="fas fa-info-circle mr-2"></i>
+                                    กดปุ่ม "สร้างการทดสอบ" เพื่อสร้างการทดสอบอัตโนมัติสำหรับโค้ดของคุณ
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Enhanced Test File Preview with directory info -->
+                    <div class="border-t border-gray-200 bg-white">
+                        <div class="p-3 bg-gray-100 flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-folder text-amber-500 mr-1"></i>
+                                <span class="text-xs text-gray-600">tests/</span>
+                                <i class="fas fa-file-code text-blue-600"></i>
+                                <span class="font-semibold text-sm">main.test.js</span>
+                            </div>
+                            <button onclick="saveTestFile()" class="flex items-center space-x-1 bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded transition">
+                                <i class="fas fa-save"></i>
+                                <span>บันทึกไฟล์</span>
+                            </button>
+                        </div>
+                        <div class="p-4 max-h-64 overflow-auto">
+                            <pre id="testFileContent" class="text-xs bg-gray-50 p-3 rounded border border-gray-200">
+<span class="text-gray-500">// ไฟล์การทดสอบจะถูกสร้างที่นี่
+// ตำแหน่ง: /tests/main.test.js</span>
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Global State
+        let currentPage = 'home';
+        let sidebarExpanded = true;
+        let carouselIndex = 0;
+        let carouselInterval;
+        let posCart = [];
+
+        let workspaceContext = {
+            files: [],
+            variables: {}
+        };
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeNavigation();
+            initializeCarousel();
+            initializePOS();
+            initializeModals();
+            initializeAI();
+            initializeInlineChat(); // Initialize inline chat
+            initializeCodeEditor();
+            initializeFileDropZone(); // Initialize file drop zone
+        });
+
+        // Navigation
+        function initializeNavigation() {
+            // Sidebar toggle
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                sidebarExpanded = !sidebarExpanded;
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('mainContent');
+                
+                if (sidebarExpanded) {
+                    sidebar.classList.remove('sidebar-collapsed');
+                    sidebar.classList.add('sidebar-expanded');
+                    mainContent.classList.remove('main-content-collapsed');
+                    mainContent.classList.add('main-content-expanded');
+                    document.querySelectorAll('.sidebar-text').forEach(el => el.classList.remove('hidden'));
+                } else {
+                    sidebar.classList.remove('sidebar-expanded');
+                    sidebar.classList.add('sidebar-collapsed');
+                    mainContent.classList.remove('main-content-expanded');
+                    mainContent.classList.add('main-content-collapsed');
+                    document.querySelectorAll('.sidebar-text').forEach(el => el.classList.add('hidden'));
+                }
+            });
+
+            // Page navigation
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    navigateToPage(page);
+                });
+            });
+
+            // Additional navigation handlers
+            document.querySelectorAll('[data-page]').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    if (this.classList.contains('sidebar-item')) return; // Already handled
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    navigateToPage(page);
+                });
+            });
+        }
+
+        function navigateToPage(page) {
+            // Hide all pages
+            document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+            
+            // Show selected page
+            const pageElement = document.getElementById(page + 'Page');
+            if (pageElement) {
+                pageElement.classList.remove('hidden');
+            }
+            
+            // Update active sidebar item
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('bg-purple-600');
+                if (item.getAttribute('data-page') === page) {
+                    item.classList.add('bg-purple-600');
+                }
+            });
+            
+            currentPage = page;
+        }
+
+        // Carousel
+        function initializeCarousel() {
+            const carousel = document.getElementById('carousel');
+            const items = carousel.querySelectorAll('.carousel-item');
+            const indicators = document.querySelectorAll('.carousel-indicator');
+            
+            function showSlide(index) {
+                carouselIndex = index;
+                carousel.style.transform = `translateX(-${index * 100}%)`;
+                
+                indicators.forEach((indicator, i) => {
+                    if (i === index) {
+                        indicator.classList.remove('bg-white/50');
+                        indicator.classList.add('bg-white', 'active');
+                    } else {
+                        indicator.classList.remove('bg-white', 'active');
+                        indicator.classList.add('bg-white/50');
+                    }
+                });
+            }
+            
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                carouselIndex = (carouselIndex - 1 + items.length) % items.length;
+                showSlide(carouselIndex);
+                resetCarouselInterval();
+            });
+            
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                carouselIndex = (carouselIndex + 1) % items.length;
+                showSlide(carouselIndex);
+                resetCarouselInterval();
+            });
+            
+            indicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', () => {
+                    showSlide(index);
+                    resetCarouselInterval();
+                });
+            });
+            
+            function autoSlide() {
+                carouselIndex = (carouselIndex + 1) % items.length;
+                showSlide(carouselIndex);
+            }
+            
+            function resetCarouselInterval() {
+                clearInterval(carouselInterval);
+                carouselInterval = setInterval(autoSlide, 5000);
+            }
+            
+            carouselInterval = setInterval(autoSlide, 5000);
+        }
+
+        // POS System
+        function initializePOS() {
+            document.querySelectorAll('.pos-product-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const product = {
+                        id: this.getAttribute('data-id'),
+                        name: this.getAttribute('data-name'),
+                        price: parseInt(this.getAttribute('data-price'))
+                    };
+                    addToCart(product);
+                });
+            });
+
+            document.getElementById('clearCart').addEventListener('click', clearCart);
+            document.getElementById('checkoutBtn').addEventListener('click', checkout);
+        }
+
+        function addToCart(product) {
+            const existingItem = posCart.find(item => item.id === product.id);
+            
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                posCart.push({...product, quantity: 1});
+            }
+            
+            updateCartDisplay();
+        }
+
+        function updateCartDisplay() {
+            const cartItemsContainer = document.getElementById('cartItems');
+            
+            if (posCart.length === 0) {
+                cartItemsContainer.innerHTML = `
+                    <div class="text-center text-gray-400 py-8">
+                        <i class="fas fa-shopping-cart text-4xl mb-2"></i>
+                        <p>ยังไม่มีสินค้าในตะกร้า</p>
+                    </div>
+                `;
+                document.getElementById('checkoutBtn').disabled = true;
+            } else {
+                cartItemsContainer.innerHTML = posCart.map(item => `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex-1">
+                            <p class="font-semibold text-sm">${item.name}</p>
+                            <p class="text-xs text-gray-600">฿${item.price.toLocaleString()} x ${item.quantity}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="bg-red-100 text-red-600 px-2 py-1 rounded hover:bg-red-200 text-sm" onclick="removeFromCart('${item.id}')">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="font-bold">${item.quantity}</span>
+                            <button class="bg-green-100 text-green-600 px-2 py-1 rounded hover:bg-green-200 text-sm" onclick="addToCart({id: '${item.id}', name: '${item.name}', price: ${item.price}})">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('checkoutBtn').disabled = false;
+            }
+            
+            updateCartTotals();
+        }
+
+        function updateCartTotals() {
+            const subtotal = posCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const discount = 0; // Can be calculated based on coupons
+            const vat = subtotal * 0.07;
+            const total = subtotal - discount + vat;
+            
+            document.getElementById('subtotal').textContent = `฿${subtotal.toLocaleString()}`;
+            document.getElementById('discount').textContent = `-฿${discount.toLocaleString()}`;
+            document.getElementById('vat').textContent = `฿${Math.round(vat).toLocaleString()}`;
+            document.getElementById('total').textContent = `฿${Math.round(total).toLocaleString()}`;
+        }
+
+        function removeFromCart(id) {
+            const item = posCart.find(item => item.id === id);
+            if (item) {
+                item.quantity--;
+                if (item.quantity === 0) {
+                    posCart = posCart.filter(item => item.id !== id);
+                }
+            }
+            updateCartDisplay();
+        }
+
+        function clearCart() {
+            if (confirm('ต้องการล้างรายการสินค้าทั้งหมดหรือไม่?')) {
+                posCart = [];
+                updateCartDisplay();
+            }
+        }
+
+        function checkout() {
+            if (posCart.length === 0) return;
+            
+            alert(`ชำระเงินสำเร็จ!\n\nยอดรวม: ${document.getElementById('total').textContent}\n\nขอบคุณที่ใช้บริการ`);
+            posCart = [];
+            updateCartDisplay();
+        }
+
+        // Modals
+        function initializeModals() {
+            // Notification Panel
+            document.getElementById('notificationBtn').addEventListener('click', () => {
+                togglePanel('notificationPanel');
+            });
+            document.getElementById('closeNotifications').addEventListener('click', () => {
+                document.getElementById('notificationPanel').classList.add('hidden');
+            });
+
+            // Chat Panel
+            document.getElementById('chatBtn').addEventListener('click', () => {
+                togglePanel('chatPanel');
+            });
+            document.getElementById('closeChat').addEventListener('click', () => {
+                document.getElementById('chatPanel').classList.add('hidden');
+            });
+
+            // Cart Panel
+            document.getElementById('cartBtn').addEventListener('click', () => {
+                togglePanel('cartPanel');
+            });
+            document.getElementById('closeCartPanel').addEventListener('click', () => {
+                document.getElementById('cartPanel').classList.add('hidden');
+            });
+
+            // Theme Modal
+            document.getElementById('themeBtn').addEventListener('click', () => {
+                document.getElementById('themeModal').classList.remove('hidden');
+            });
+            document.getElementById('closeThemeModal').addEventListener('click', () => {
+                document.getElementById('themeModal').classList.add('hidden');
+            });
+
+            document.querySelectorAll('.theme-option').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    document.body.className = `theme-${theme} transition-colors duration-300`;
+                    document.getElementById('themeModal').classList.add('hidden');
+                });
+            });
+
+            // AI Modal
+            document.getElementById('aiAssistantBtn').addEventListener('click', () => {
+                document.getElementById('aiModal').classList.remove('hidden');
+            });
+            document.getElementById('closeAIModal').addEventListener('click', () => {
+                document.getElementById('aiModal').classList.add('hidden');
+            });
+        }
+
+        function togglePanel(panelId) {
+            const panel = document.getElementById(panelId);
+            const allPanels = ['notificationPanel', 'chatPanel', 'cartPanel'];
+            
+            allPanels.forEach(id => {
+                if (id !== panelId) {
+                    document.getElementById(id).classList.add('hidden');
+                }
+            });
+            
+            panel.classList.toggle('hidden');
+        }
+
+        // AI Assistant
+        function initializeAI() {
+            // In-page AI
+            document.getElementById('generateAIBrief')?.addEventListener('click', generateAIBrief);
+            document.getElementById('copyAIResponse')?.addEventListener('click', copyAIResponse);
+            
+            // Modal AI
+            document.getElementById('generateAIBriefModal')?.addEventListener('click', generateAIBriefModal);
+            document.getElementById('copyAIResponseModal')?.addEventListener('click', copyAIResponseModal);
+        }
+
+        function generateAIBrief() {
+            const prompt = document.getElementById('aiPrompt').value.trim();
+            
+            if (!prompt) {
+                alert('กรุณากรอกความต้องการของคุณ');
+                return;
+            }
+            
+            // Simulate AI response
+            const response = {
+                style: 'สไตล์มินิมัล, สะอาดตา, ทันสมัย',
+                colors: 'สีน้ำตาล, ครีม, ขาว, สีเขียวอ่อน',
+                elements: 'โลโก้แบบ simple, ฟอนต์ sans-serif, ไอคอนแก้วกาแฟ',
+                brief: 'ออกแบบโลโก้สำหรับร้านกาแฟสไตล์มินิมอล โดยใช้สีน้ำตาลและครีมเป็นหลัก มีความรู้สึกอบอุ่นและเรียบง่าย สามารถใช้ได้ทั้งแบบสีและขาวดำ'
+            };
+            
+            displayAIResponse(response, 'aiResponse', 'aiResponseContent');
+        }
+
+        function generateAIBriefModal() {
+            const prompt = document.getElementById('aiModalPrompt').value.trim();
+            
+            if (!prompt) {
+                alert('กรุณากรอกความต้องการของคุณ');
+                return;
+            }
+            
+            const response = {
+                style: 'สไตล์โมเดิร์น, สดใส, น่าดึงดูด',
+                colors: 'สีชมพู, เหลืองอ่อน, ขาว, เขียวมิ้นท์',
+                elements: 'แสงธรรมชาติ, มุมถ่ายสูง, พื้นหลังสะอาด',
+                brief: 'ถ่ายภาพขนมไทยในสไตล์โมเดิร์น ให้ความสำคัญกับแสงธรรมชาติ ใช้สีสันสดใส จัดองค์ประกอบแบบมินิมัล เน้นความสวยงามและรสชาติ'
+            };
+            
+            displayAIResponse(response, 'aiModalResponse', 'aiModalResponseContent');
+        }
+
+        function displayAIResponse(response, containerId, contentId) {
+            const container = document.getElementById(containerId);
+            const content = document.getElementById(contentId);
+            
+            content.innerHTML = `
+                <div class="mb-4">
+                    <p class="font-bold text-purple-600 mb-2">
+                        <i class="fas fa-palette mr-2"></i>สไตล์แนะนำ:
+                    </p>
+                    <p>${response.style}</p>
+                </div>
+                <div class="mb-4">
+                    <p class="font-bold text-pink-600 mb-2">
+                        <i class="fas fa-fill-drip mr-2"></i>คู่สี:
+                    </p>
+                    <p>${response.colors}</p>
+                </div>
+                <div class="mb-4">
+                    <p class="font-bold text-blue-600 mb-2">
+                        <i class="fas fa-magic mr-2"></i>สิ่งที่ควรมี:
+                    </p>
+                    <p>${response.elements}</p>
+                </div>
+                <div class="mb-4">
+                    <p class="font-bold text-green-600 mb-2">
+                        <i class="fas fa-file-alt mr-2"></i>ร่างประกาศหางาน:
+                    </p>
+                    <p class="bg-white/50 p-3 rounded-lg">${response.brief}</p>
+                </div>
+            `;
+            
+            container.classList.remove('hidden');
+        }
+
+        function copyAIResponse() {
+            const content = document.getElementById('aiResponseContent').innerText;
+            navigator.clipboard.writeText(content).then(() => {
+                alert('คัดลอกเรียบร้อยแล้ว!');
+            });
+        }
+
+        function copyAIResponseModal() {
+            const content = document.getElementById('aiModalResponseContent').innerText;
+            navigator.clipboard.writeText(content).then(() => {
+                alert('คัดลอกเรียบร้อยแล้ว!');
+            });
+        }
+
+        function initializeInlineChat() {
+            // No specific initialization needed for inline chat elements beyond DOMContentLoaded
+            // Add event listener for keyboard shortcut
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+I for inline chat
+                if (e.ctrlKey && e.key === 'i') {
+                    e.preventDefault();
+                    const inlineChatPanel = document.getElementById('inlineChatPanel');
+                    if (inlineChatPanel.classList.contains('hidden')) {
+                        openInlineChat();
+                    } else {
+                        closeInlineChat();
+                    }
+                }
+            });
+        }
+
+        function openInlineChat() {
+            document.getElementById('inlineChatPanel').classList.remove('hidden');
+            document.getElementById('inlineChatInput').focus();
+        }
+
+        function closeInlineChat() {
+            document.getElementById('inlineChatPanel').classList.add('hidden');
+        }
+
+        function sendInlineChatMessage() {
+            const input = document.getElementById('inlineChatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const messagesDiv = document.getElementById('inlineChatMessages');
+            
+            const hasWorkspace = message.includes('@workspace');
+            const hasSlashCommand = message.startsWith('/');
+            
+            // User message
+            messagesDiv.innerHTML += `
+                <div class="chat-message flex justify-end">
+                    <div class="bg-purple-600 text-white p-3 rounded-lg max-w-md">
+                        <p class="text-sm">${message}</p>
+                        ${hasWorkspace ? '<span class="text-xs bg-purple-800 px-2 py-0.5 rounded mt-1 inline-block"><i class="fas fa-folder-tree mr-1"></i>Using workspace context</span>' : ''}
+                    </div>
+                </div>
+            `;
+            
+            // Simulate AI response based on command
+            setTimeout(() => {
+                let aiResponse = 'ฉันเข้าใจแล้วครับ! ให้ฉันช่วยคุณ 🤖';
+                
+                if (hasWorkspace && message.includes('/explain')) {
+                    aiResponse = `ฉันกำลังวิเคราะห์โปรเจกต์ของคุณ...<br><br>
+                        <strong>โครงสร้างโปรเจกต์:</strong><br>
+                        📁 ไฟล์ที่เพิ่มบริบท: ${workspaceContext.files.length} ไฟล์<br>
+                        💼 ระบบหลัก: ร้านค้าออนไลน์, POS, วิเคราะห์ข้อมูล<br>
+                        🎨 UI Framework: Tailwind CSS<br>
+                        ⚡ Features: แชทสด, AI Assistant, ระบบการชำระเงิน<br><br>
+                        <em>ต้องการให้ฉันอธิบายส่วนไหนเพิ่มเติมไหมครับ?</em>`;
+                } else if (hasSlashCommand && message.includes('/tests')) {
+                    aiResponse = `กำลังสร้างการทดสอบหน่วยสำหรับโค้ดของคุณ...<br><br>
+                        ✅ สร้างการทดสอบสำหรับฟังก์ชันหลัก<br>
+                        ✅ รวมกรณีขอบ (Edge cases)<br>
+                        ✅ ตรวจสอบการจัดการข้อผิดพลาด<br><br>
+                        <button onclick="openCodeEditor(); generateUnitTests();" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs mt-2">
+                            <i class="fas fa-external-link-alt mr-1"></i>เปิด Code Editor
+                        </button>`;
+                } else if (message.includes('ทดสอบ') || message.includes('test')) {
+                    aiResponse = 'ฉันจะช่วยคุณสร้างการทดสอบหน่วยสำหรับโค้ดนี้ ทดสอบทั้งความสำเร็จและความล้มเหลว รวมถึงกรณีขอบด้วยครับ 🧪';
+                } else if (hasWorkspace) {
+                    aiResponse = `ฉันกำลังใช้บริบทจาก ${workspaceContext.files.length} ไฟล์ในการวิเคราะห์ครับ 📂`;
+                }
+                
+                messagesDiv.innerHTML += `
+                    <div class="chat-message flex items-start space-x-2">
+                        <div class="bg-gradient-to-r from-purple-500 to-indigo-500 text-white p-2 rounded-full">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="bg-gray-100 p-3 rounded-lg max-w-md">
+                            <p class="text-sm">${aiResponse}</p>
+                        </div>
+                    </div>
+                `;
+                
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 1000);
+            
+            input.value = '';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function quickAction(action) {
+            const actions = {
+                'generate-test': 'สร้างการทดสอบหน่วยสำหรับโค้ดที่เลือก',
+                'explain-code': 'อธิบายโค้ดนี้ให้เข้าใจง่ายๆ',
+                'optimize': 'ปรับปรุงโค้ดนี้ให้มีประสิทธิภาพดีขึ้น',
+                'debug': 'ช่วยหาและแก้ไขข้อผิดพลาดในโค้ด'
+            };
+            
+            document.getElementById('inlineChatInput').value = actions[action];
+            sendInlineChatMessage();
+        }
+
+        function initializeCodeEditor() {
+            // Add event listener for keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+I for inline chat
+                if (e.ctrlKey && e.key === 'i') {
+                    e.preventDefault();
+                    const inlineChatPanel = document.getElementById('inlineChatPanel');
+                    if (inlineChatPanel.classList.contains('hidden')) {
+                        openInlineChat();
+                    } else {
+                        closeInlineChat();
+                    }
+                }
+                
+                // Ctrl+Shift+T for code editor/testing
+                if (e.ctrlKey && e.shiftKey && e.key === 'T') {
+                    e.preventDefault();
+                    openCodeEditor();
+                }
+                
+                // Enter in inline chat to send
+                if (e.key === 'Enter' && !e.shiftKey && document.getElementById('inlineChatInput') === document.activeElement) {
+                    e.preventDefault();
+                    sendInlineChatMessage();
+                }
+            });
+
+            // Add event listener for code line selection
+            document.getElementById('codeContent').addEventListener('click', function(e) {
+                if (e.target.classList.contains('code-line')) {
+                    e.target.classList.toggle('selected');
+                }
+            });
+
+            // Initialize tooltips for keyboard shortcuts
+            console.log('[v0] Keyboard shortcuts initialized:');
+            console.log('[v0] - Ctrl+I: Open/Close Inline Chat');
+            console.log('[v0] - Ctrl+Shift+T: Open Code Editor & Testing');
+        }
+
+        function openCodeEditor() {
+            document.getElementById('codeEditorPanel').classList.remove('hidden');
+        }
+
+        function closeCodeEditor() {
+            document.getElementById('codeEditorPanel').classList.add('hidden');
+        }
+
+        function applyInEditor() {
+            const selectedLines = document.querySelectorAll('.code-line.selected');
+            
+            if (selectedLines.length === 0) {
+                alert('⚠️ กรุณาเลือกบรรทัดโค้ดที่ต้องการนำไปใช้');
+                return;
+            }
+            
+            let selectedCode = '';
+            selectedLines.forEach(line => {
+                selectedCode += line.textContent + '\n';
+            });
+            
+            // Simulate applying to editor
+            console.log('[v0] Applying code to editor:', selectedCode);
+            
+            // Show success message
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-bounce';
+            notification.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-check-circle text-xl"></i>
+                    <span class="font-semibold">นำโค้ดไปใช้ในตัวแก้ไขสำเร็จ!</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function generateUnitTests() {
+            const testFileContent = document.getElementById('testFileContent');
+            const testResults = document.getElementById('testResults');
+            const testBadge = document.getElementById('testBadge');
+            
+            testFileContent.innerHTML = `
+<span class="text-green-600">/**</span>
+<span class="text-green-600"> * main.test.js - Generated Unit Tests</span>
+<span class="text-green-600"> * Location: /tests/main.test.js</span>
+<span class="text-green-600"> * Framework: Jest</span>
+<span class="text-green-600"> * Generated: ${new Date().toLocaleString('th-TH')}</span>
+<span class="text-green-600"> */</span>
+
+<span class="text-blue-600">import</span> { calculateTotal, applyDiscount, calculateTax } <span class="text-blue-600">from</span> <span class="text-green-600">'../main.js'</span>;
+
+<span class="text-purple-600">describe</span>(<span class="text-green-600">'calculateTotal'</span>, () => {
+    <span class="text-purple-600">test</span>(<span class="text-green-600">'should calculate total correctly with multiple items'</span>, () => {
+        <span class="text-blue-600">const</span> items = [
+            { price: 100, quantity: 2 },
+            { price: 50, quantity: 3 }
+        ];
+        <span class="text-purple-600">expect</span>(calculateTotal(items))<span class="text-purple-600">.toBe</span>(350);
+    });
+    
+    <span class="text-purple-600">test</span>(<span class="text-green-600">'should return 0 for empty array'</span>, () => {
+        <span class="text-purple-600">expect</span>(calculateTotal([]))<span class="text-purple-600">.toBe</span>(0);
+    });
+    
+    <span class="text-purple-600">test</span>(<span class="text-green-600">'should handle single item'</span>, () => {
+        <span class="text-purple-600">expect</span>(calculateTotal([{ price: 99, quantity: 1 }]))<span class="text-purple-600">.toBe</span>(99);
+    });
+});
+
+<span class="text-purple-600">describe</span>(<span class="text-green-600">'applyDiscount'</span>, () => {
+    <span class="text-purple-600">test</span>(<span class="text-green-600">'should apply 10% discount correctly'</span>, () => {
+        <span class="text-purple-600">expect</span>(applyDiscount(100, 10))<span class="text-purple-600">.toBe</span>(90);
+    });
+    
+    <span class="text-purple-600">test</span>(<span class="text-green-600">'should handle 0% discount'</span>, () => {
+        <span class="text-purple-600">expect</span>(applyDiscount(100, 0))<span class="text-purple-600">.toBe</span>(100);
+    });
+    
+    <span class="text-purple-600">test</span>(<span class="text-green-600">'should handle 100% discount'</span>, () => {
+        <span class="text-purple-600">expect</span>(applyDiscount(100, 100))<span class="text-purple-600">.toBe</span>(0);
+    });
+});
+
+<span class="text-purple-600">describe</span>(<span class="text-green-600">'calculateTax'</span>, () => {
+    <span class="text-purple-600">test</span>(<span class="text-green-600">'should calculate 7% VAT correctly'</span>, () => {
+        <span class="text-purple-600">expect</span>(calculateTax(100, 7))<span class="text-purple-600">.toBe</span>(7);
+    });
+    
+    <span class="text-purple-600">test</span>(<span class="text-green-600">'should handle zero tax rate'</span>, () => {
+        <span class="text-purple-600">expect</span>(calculateTax(100, 0))<span class="text-purple-600">.toBe</span>(0);
+    });
+});
+            `;
+            
+            testResults.innerHTML = `
+                <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded">
+                    <p class="text-sm text-green-700">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        การทดสอบถูกสร้างเรียบร้อย
+                    </p>
+                    <p class="text-xs text-green-600 mb-3">
+                        สร้างการทดสอบ 8 กรณีสำหรับฟังก์ชัน 3 ฟังก์ชัน รวมถึงกรณีขอบและการตรวจสอบความผิดพลาด
+                    </p>
+                    <div class="bg-white p-3 rounded border border-green-200">
+                        <p class="text-xs text-gray-600 mb-2"><strong>ครอบคลุม:</strong></p>
+                        <ul class="text-xs text-gray-700 space-y-1">
+                            <li>✅ ทดสอบกรณีปกติ (Normal cases)</li>
+                            <li>✅ ทดสอบกรณีขอบ (Edge cases)</li>
+                            <li>✅ ทดสอบค่าว่าง/ศูนย์</li>
+                            <li>✅ ทดสอบค่าสูงสุด</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                    <p class="text-sm text-blue-700">
+                        <i class="fas fa-lightbulb mr-2"></i>
+                        <strong>ขั้นตอนถัดไป:</strong>
+                    </p>
+                    <ol class="text-sm text-blue-600 mt-2 space-y-1 list-decimal list-inside">
+                        <li>กดปุ่ม "รันการทดสอบ" เพื่อตรวจสอบผลลัพธ์</li>
+                        <li>กดปุ่ม "บันทึกไฟล์" เพื่อบันทึกลงในโฟลเดอร์ /tests/</li>
+                        <li>ปรับแต่งการทดสอบตามความต้องการ</li>
+                    </ol>
+                </div>
+            `;
+            
+            testBadge.textContent = '8 tests';
+            testBadge.classList.remove('bg-gray-300', 'text-gray-700');
+            testBadge.classList.add('bg-green-200', 'text-green-800');
+            
+            console.log('[v0] Generated 8 unit tests for main.js');
+        }
+
+        function runTests() {
+            const testResults = document.getElementById('testResults');
+            const testBadge = document.getElementById('testBadge');
+            
+            // Simulate running tests
+            testResults.innerHTML = `
+                <div class="bg-blue-50 p-4 rounded border-l-4 border-blue-400">
+                    <p class="text-sm text-blue-700">
+                        <i class="fas fa-spinner fa-spin mr-2"></i>
+                        กำลังรันการทดสอบ...
+                    </p>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                testResults.innerHTML = `
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                        <div class="flex items-center justify-between mb-3">
+                            <p class="font-bold text-green-700 text-lg">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                การทดสอบผ่านทั้งหมด!
+                            </p>
+                            <span class="bg-green-200 text-green-800 px-3 py-1 rounded-full font-bold">8/8</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="bg-white p-3 rounded border border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    calculateTotal - should calculate total correctly with multiple items
+                                </span>
+                                <span class="text-xs text-gray-500">15ms</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-3 rounded border border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    calculateTotal - should return 0 for empty array
+                                </span>
+                                <span class="text-xs text-gray-500">10ms</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-3 rounded border border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    calculateTotal - should handle single item
+                                </span>
+                                <span class="text-xs text-gray-500">8ms</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-3 rounded border border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    applyDiscount - should apply 10% discount correctly
+                                </span>
+                                <span class="text-xs text-gray-500">7ms</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-3 rounded border border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    applyDiscount - should handle 0% discount
+                                </span>
+                                <span class="text-xs text-gray-500">6ms</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-3 rounded border border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    applyDiscount - should handle 100% discount
+                                </span>
+                                <span class="text-xs text-gray-500">5ms</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-3 rounded border border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    calculateTax - should calculate 7% VAT correctly
+                                </span>
+                                <span class="text-xs text-gray-500">12ms</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-3 rounded border border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    calculateTax - should handle zero tax rate
+                                </span>
+                                <span class="text-xs text-gray-500">9ms</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded border border-gray-200">
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <p class="text-2xl font-bold text-green-600">100%</p>
+                                <p class="text-xs text-gray-600">ผ่านการทดสอบ</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold text-blue-600">55ms</p>
+                                <p class="text-xs text-gray-600">เวลาทั้งหมด</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold text-purple-600">98%</p>
+                                <p class="text-xs text-gray-600">Code Coverage</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }, 2000);
+        }
+
+        function saveTestFile() {
+            const testContent = document.getElementById('testFileContent').textContent;
+            
+            // Simulate saving to /tests/ directory
+            console.log('[v0] Saving test file to /tests/main.test.js');
+            console.log('[v0] Content length:', testContent.length, 'characters');
+            
+            // Show detailed success message
+            const message = `
+✅ บันทึกไฟล์สำเร็จ!
+
+📂 ตำแหน่ง: /tests/main.test.js
+📝 ขนาด: ${(testContent.length / 1024).toFixed(2)} KB
+🧪 จำนวนการทดสอบ: 8 tests
+📅 เวลา: ${new Date().toLocaleString('th-TH')}
+
+✨ ไฟล์พร้อมใช้งานแล้ว!
+            `;
+            
+            alert(message);
+        }
+
+        function initializeFileDropZone() {
+            const dropZone = document.getElementById('fileDropZone');
+            const fileInput = document.getElementById('fileInput');
+            
+            dropZone.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+            
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('drag-over');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                
+                const files = e.dataTransfer.files;
+                addFilesToContext(files);
+            });
+            
+            console.log('[v0] File drop zone initialized');
+        }
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            addFilesToContext(files);
+        }
+
+        function addFilesToContext(files) {
+            const contextList = document.getElementById('contextFilesList');
+            
+            Array.from(files).forEach(file => {
+                // Check if file already exists
+                if (workspaceContext.files.some(f => f.name === file.name)) {
+                    return;
+                }
+                
+                workspaceContext.files.push({
+                    name: file.name,
+                    size: file.size,
+                    type: file.type
+                });
+                
+                const fileElement = document.createElement('div');
+                fileElement.className = 'context-file flex items-center justify-between bg-white p-2 rounded border border-purple-200';
+                fileElement.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-file-code text-purple-600"></i>
+                        <span class="text-sm font-medium">${file.name}</span>
+                        <span class="text-xs text-gray-500">${(file.size / 1024).toFixed(1)} KB</span>
+                    </div>
+                    <button onclick="removeFileFromContext('${file.name}')" class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                contextList.appendChild(fileElement);
+            });
+            
+            console.log('[v0] Added files to workspace context:', workspaceContext.files.length);
+        }
+
+        function removeFileFromContext(fileName) {
+            workspaceContext.files = workspaceContext.files.filter(f => f.name !== fileName);
+            updateContextList();
+        }
+
+        function clearWorkspaceContext() {
+            workspaceContext.files = [];
+            updateContextList();
+            console.log('[v0] Cleared workspace context');
+        }
+
+        function updateContextList() {
+            const contextList = document.getElementById('contextFilesList');
+            contextList.innerHTML = '';
+            workspaceContext.files.forEach(file => {
+                const fileElement = document.createElement('div');
+                fileElement.className = 'context-file flex items-center justify-between bg-white p-2 rounded border border-purple-200';
+                fileElement.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-file-code text-purple-600"></i>
+                        <span class="text-sm font-medium">${file.name}</span>
+                        <span class="text-xs text-gray-500">${(file.size / 1024).toFixed(1)} KB</span>
+                    </div>
+                    <button onclick="removeFileFromContext('${file.name}')" class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                contextList.appendChild(fileElement);
+            });
+        }
+
+        // Make functions globally accessible
+        window.addToCart = addToCart;
+        window.removeFromCart = removeFromCart;
+        window.openInlineChat = openInlineChat;
+        window.closeInlineChat = closeInlineChat;
+        window.sendInlineChatMessage = sendInlineChatMessage;
+        window.quickAction = quickAction;
+        window.openCodeEditor = openCodeEditor;
+        window.closeCodeEditor = closeCodeEditor;
+        window.applyInEditor = applyInEditor;
+        window.generateUnitTests = generateUnitTests;
+        window.runTests = runTests;
+        window.saveTestFile = saveTestFile;
+        window.handleFileSelect = handleFileSelect;
+        window.removeFileFromContext = removeFileFromContext;
+        window.clearWorkspaceContext = clearWorkspaceContext;
+    </script>
+</body>
+</html>

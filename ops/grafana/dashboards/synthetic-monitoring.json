@@ -1,0 +1,84 @@
+{
+  "dashboard": {
+    "title": "DesignConnect Synthetic Monitoring",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Login Check Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "synthetic_status{check=\"LOGIN\"}",
+            "legendFormat": "Login Status"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [{ "value": 0, "color": "red" }, { "value": 1, "color": "green" }]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "API Latency",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "synthetic_latency_ms",
+            "legendFormat": "{{check}}"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "ms",
+            "label": "Latency"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Chat Connection Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "synthetic_status{check=\"CHAT\"}",
+            "legendFormat": "Chat Status"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "System Uptime",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "avg_over_time(synthetic_status[5m]) * 100",
+            "legendFormat": "Uptime %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                { "value": 0, "color": "red" },
+                { "value": 95, "color": "yellow" },
+                { "value": 99, "color": "green" }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    }
+  }
+}

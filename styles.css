@@ -1,0 +1,206 @@
+@import url("https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap");
+
+* {
+  font-family: "Kanit", sans-serif;
+}
+
+.sidebar-collapsed {
+  width: 70px;
+}
+
+.sidebar-expanded {
+  width: 280px;
+}
+
+.main-content-expanded {
+  margin-left: 280px;
+}
+
+.main-content-collapsed {
+  margin-left: 70px;
+}
+
+.notification-badge {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.carousel-item {
+  min-width: 100%;
+  transition: transform 0.5s ease;
+}
+
+.video-player {
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+
+.chat-message {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.theme-light {
+  background: #f8f9fa;
+  color: #333;
+}
+
+.theme-dark {
+  background: #1a1a2e;
+  color: #eee;
+}
+
+.theme-warm {
+  background: #fff5e6;
+  color: #4a3f35;
+}
+
+.inline-chat-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  z-index: 100;
+}
+
+.inline-chat-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 600px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  z-index: 101;
+  animation: slideInChat 0.3s ease;
+}
+
+@keyframes slideInChat {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -40%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.code-editor {
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  line-height: 1.6;
+}
+
+.code-line {
+  display: block;
+  padding: 2px 0;
+}
+
+.code-line.selected {
+  background: rgba(100, 200, 255, 0.2);
+}
+
+.test-result {
+  animation: testFade 0.4s ease;
+}
+
+@keyframes testFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.workspace-context {
+  border: 2px dashed #9333ea;
+  background: #f3e8ff;
+}
+
+.file-drop-zone {
+  min-height: 120px;
+  border: 2px dashed #cbd5e0;
+  background: #f7fafc;
+  transition: all 0.3s ease;
+}
+
+.file-drop-zone.drag-over {
+  border-color: #9333ea;
+  background: #f3e8ff;
+}
+
+.context-file {
+  animation: slideInFile 0.3s ease;
+}
+
+@keyframes slideInFile {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.apply-in-editor-btn {
+  animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(147, 51, 234, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.8);
+  }
+}
